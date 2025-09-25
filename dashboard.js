@@ -1,5 +1,6 @@
 // Dashboard functionality
 let currentPage = 'dashboard';
+let isProcessingUpload = false; // Flag to prevent double upload processing
 // currentUser and currentLanguage are declared in app.js
 
 // Initialize dashboard
@@ -24,6 +25,26 @@ function attemptInitialization(retryCount = 0) {
     }
 }
 
+// Helper function to get localized text
+function getLocalizedText(doc, field) {
+    if (currentLanguage === 'ml') {
+        // Try Malayalam version first
+        if (field === 'summary') {
+            return doc.summaryML || doc.summary;
+        } else if (field === 'content') {
+            return doc.contentML || doc.content;
+        }
+    } else {
+        // Try English version first
+        if (field === 'summary') {
+            return doc.summaryEN || doc.summary;
+        } else if (field === 'content') {
+            return doc.contentEN || doc.content;
+        }
+    }
+    return doc[field] || '';
+}
+
 function initializeDashboard() {
     // Get user data from session storage
     const userData = sessionStorage.getItem('currentUser');
@@ -46,6 +67,7 @@ function initializeDashboard() {
     setupDashboard();
     loadDocuments();
     setupEventListeners();
+    setupChatEventListeners();
     updateLanguageDisplay();
     setupCrossDepartmentSelector();
     
@@ -135,6 +157,8 @@ function setupEventListeners() {
     // Language toggle
     const langToggle = document.getElementById('langToggle');
     if (langToggle) {
+        // Remove existing listener to prevent duplicates
+        langToggle.removeEventListener('click', toggleLanguage);
         langToggle.addEventListener('click', toggleLanguage);
     }
     
@@ -143,12 +167,29 @@ function setupEventListeners() {
     const fileInput = document.getElementById('fileInput');
     
     if (uploadArea && fileInput) {
-        uploadArea.addEventListener('click', () => fileInput.click());
+        // Remove existing listeners to prevent duplicates
+        uploadArea.removeEventListener('click', uploadAreaClickHandler);
+        uploadArea.removeEventListener('dragover', handleDragOver);
+        uploadArea.removeEventListener('drop', handleFileDrop);
+        fileInput.removeEventListener('change', handleFileSelect);
+        
+        // Add fresh listeners
+        uploadArea.addEventListener('click', uploadAreaClickHandler);
         uploadArea.addEventListener('dragover', handleDragOver);
         uploadArea.addEventListener('drop', handleFileDrop);
         fileInput.addEventListener('change', handleFileSelect);
     }
-    
+}
+
+// Named function for upload area click to enable proper removal
+function uploadAreaClickHandler() {
+    const fileInput = document.getElementById('fileInput');
+    if (fileInput) {
+        fileInput.click();
+    }
+}
+
+function setupChatEventListeners() {
     // Chat input enter key
     const chatInputs = document.querySelectorAll('.chat-input');
     chatInputs.forEach(input => {
@@ -211,11 +252,11 @@ function createDocumentCard(doc) {
                 <div class="document-title">${doc.title}</div>
                 <div class="document-source">
                     <i class="${window.kmrlApp.getSourceIcon(doc.source)}"></i>
-                    <span>${currentLanguage === 'en' ? 'Source' : 'ഉറവിടം'}: ${doc.source}</span>
+                    <span data-en="Source" data-ml="ഉറവിടം">${currentLanguage === 'en' ? 'Source' : 'ഉറവിടം'}</span>: ${doc.source}
                 </div>
                 <div class="document-source">
                     <i class="fas fa-globe"></i>
-                    <span>${currentLanguage === 'en' ? 'Language' : 'ഭാഷ'}: ${doc.language}</span>
+                    <span data-en="Language" data-ml="ഭാഷ">${currentLanguage === 'en' ? 'Language' : 'ഭാഷ'}</span>: ${doc.language}
                 </div>
                 <div class="document-source">
                     <i class="fas fa-calendar"></i>
@@ -225,7 +266,7 @@ function createDocumentCard(doc) {
             <div class="document-language">${doc.language}</div>
         </div>
         <div class="document-content">
-            <div class="document-summary">${doc.summary}</div>
+            <div class="document-summary">${getLocalizedText(doc, 'summary')}</div>
         </div>
         <div class="document-actions">
             <button class="btn btn-primary" onclick="viewDocument(${doc.id})">
@@ -272,12 +313,16 @@ function logout() {
 }
 
 function toggleLanguage() {
+    console.log('Toggle language called. Current:', currentLanguage);
     currentLanguage = currentLanguage === 'en' ? 'ml' : 'en';
+    console.log('New language:', currentLanguage);
     localStorage.setItem('currentLanguage', currentLanguage);
-    updateLanguageDisplay();
     
     // Reload documents with new language
     loadDocuments();
+    
+    // Update all language elements (including the new document cards)
+    updateLanguageDisplay();
     
     // Update department name
     const deptName = document.getElementById('deptName');
@@ -289,13 +334,18 @@ function toggleLanguage() {
 }
 
 function updateLanguageDisplay() {
+    console.log('Updating language display for:', currentLanguage);
     const langText = document.getElementById('langText');
     if (langText) {
         langText.textContent = currentLanguage === 'en' ? 'മലയാളം' : 'English';
+        console.log('Updated lang button text to:', langText.textContent);
+    } else {
+        console.error('langText element not found');
     }
 
     // Update all elements with data-en and data-ml attributes
     const elements = document.querySelectorAll('[data-en][data-ml]');
+    console.log('Found elements with data attributes:', elements.length);
     elements.forEach(element => {
         if (currentLanguage === 'en') {
             element.textContent = element.getAttribute('data-en');
@@ -362,6 +412,19 @@ function handleFileSelect(e) {
 }
 
 async function processUploadedFiles(files) {
+    // Prevent double processing
+    if (isProcessingUpload) {
+        console.log('Upload already in progress, ignoring duplicate request');
+        return;
+    }
+    
+    if (!files || files.length === 0) {
+        console.log('No files to process');
+        return;
+    }
+    
+    isProcessingUpload = true;
+    
     // Clear file input to prevent double upload issue
     const fileInput = document.getElementById('fileInput');
     if (fileInput) {
@@ -530,6 +593,9 @@ async function startFileProcessing() {
     startBtn.innerHTML = '<i class="fas fa-check"></i> <span data-en="All Files Processed" data-ml="എല്ലാ ഫയലുകളും പ്രോസസ് ചെയ്തു">All Files Processed</span>';
     cancelBtn.disabled = false;
     cancelBtn.innerHTML = '<i class="fas fa-check"></i> <span data-en="Done" data-ml="പൂർത്തിയായി">Done</span>';
+    
+    // Reset processing flag when all files are processed
+    isProcessingUpload = false;
     
     // Update dashboard stats
     updateDashboardStats();
@@ -750,12 +816,12 @@ function showDocumentModal(doc) {
                 </div>
                 <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
                     <h3 style="color: var(--gov-primary); margin-bottom: 10px;">${currentLanguage === 'en' ? 'AI Generated Summary' : 'AI ജനറേറ്റഡ് സംഗ്രഹം'}</h3>
-                    <p style="margin: 0; line-height: 1.6;">${doc.summary}</p>
+                    <p style="margin: 0; line-height: 1.6;">${getLocalizedText(doc, 'summary')}</p>
                 </div>
                 <div>
                     <h3 style="color: var(--gov-primary); margin-bottom: 15px;">${currentLanguage === 'en' ? 'Full Document Content' : 'പൂർണ്ണ ഡോക്യുമെന്റ് ഉള്ളടക്കം'}</h3>
                     <div style="background: white; padding: 20px; border: 1px solid #ddd; border-radius: 8px; line-height: 1.8; text-align: justify;">
-                        ${doc.content}
+                        ${getLocalizedText(doc, 'content')}
                     </div>
                 </div>
                 <div style="margin-top: 20px; text-align: center;">
@@ -1250,6 +1316,7 @@ function closeUploadModal() {
         modal.remove();
     }
     
-    // Clear upload queue
+    // Clear upload queue and reset processing flag
     window.uploadQueue = [];
+    isProcessingUpload = false;
 }
