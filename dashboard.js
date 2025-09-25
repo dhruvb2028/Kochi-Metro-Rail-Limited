@@ -1,6 +1,7 @@
 // Dashboard functionality
 let currentPage = 'dashboard';
 let isProcessingUpload = false; // Flag to prevent double upload processing
+let geminiService; // Gemini AI service instance
 // currentUser and currentLanguage are declared in app.js
 
 // Initialize dashboard
@@ -64,12 +65,18 @@ function initializeDashboard() {
     
     currentLanguage = localStorage.getItem('currentLanguage') || 'en';
     
+    // Initialize Gemini AI service
+    geminiService = new GeminiService();
+    
     setupDashboard();
     loadDocuments();
     setupEventListeners();
     setupChatEventListeners();
     updateLanguageDisplay();
     setupCrossDepartmentSelector();
+    
+    // Initialize search and filters after user is set up
+    initializeSearchAndFilters();
     
     // Initialize with some demo chat messages
     initializeDemoChats();
@@ -231,6 +238,14 @@ function loadRecentDocuments(documents) {
 }
 
 function loadAllDocuments(documents) {
+    // For documents page, we'll use the search and filter system
+    // This function is now mainly for setting up initial state
+    if (typeof initializeSearchAndFilters === 'function') {
+        // Filters will handle the display
+        return;
+    }
+    
+    // Fallback for when filters aren't ready
     const container = document.getElementById('allDocs');
     if (!container) return;
     
@@ -304,6 +319,13 @@ function showPage(pageId) {
     
     event.target.classList.add('active');
     currentPage = pageId;
+    
+    // Initialize page-specific functionality
+    if (pageId === 'documents') {
+        setTimeout(() => {
+            initializeSearchAndFilters();
+        }, 100);
+    }
 }
 
 function logout() {
@@ -323,6 +345,9 @@ function toggleLanguage() {
     
     // Update all language elements (including the new document cards)
     updateLanguageDisplay();
+    
+    // Update search placeholders
+    updateSearchPlaceholders();
     
     // Update department name
     const deptName = document.getElementById('deptName');
@@ -838,6 +863,11 @@ function showDocumentModal(doc) {
 }
 
 function chatWithDocument(docId) {
+    // Ensure GeminiService is initialized
+    if (!geminiService) {
+        geminiService = new GeminiService();
+    }
+    
     const userDept = currentUser.department;
     const userDocs = window.kmrlApp.mockDocuments[userDept] || [];
     const doc = userDocs.find(d => d.id === docId);
@@ -892,8 +922,13 @@ async function sendDocumentQuestion() {
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
     
     try {
-        // Get AI response
-        const response = await window.kmrlApp.callGeminiAPI(message, currentDocument.content);
+        // Ensure GeminiService is properly initialized before use
+        if (!geminiService) {
+            geminiService = new GeminiService();
+        }
+        
+        // Get AI response using GeminiService
+        const response = await geminiService.chatWithDocument(message, currentDocument);
         
         // Remove typing indicator
         messagesContainer.removeChild(typingIndicator);
@@ -901,7 +936,7 @@ async function sendDocumentQuestion() {
         // Add AI response
         const aiMessage = document.createElement('div');
         aiMessage.className = 'message ai';
-        aiMessage.textContent = response;
+        aiMessage.innerHTML = response; // Use innerHTML to support formatted responses
         messagesContainer.appendChild(aiMessage);
         
         // Scroll to bottom
@@ -911,11 +946,25 @@ async function sendDocumentQuestion() {
         console.error('Error getting AI response:', error);
         messagesContainer.removeChild(typingIndicator);
         
+        // Determine error message based on error type
+        let errorText;
+        if (error.message && error.message.includes('API_KEY_INVALID')) {
+            errorText = currentLanguage === 'en' 
+                ? 'AI service is not properly configured. Please contact support.'
+                : 'AI സേവനം ശരിയായി കോൺഫിഗർ ചെയ്തിട്ടില്ല. സപ്പോർട്ടിനെ ബന്ധപ്പെടുക.';
+        } else if (error.message && error.message.includes('RATE_LIMIT')) {
+            errorText = currentLanguage === 'en' 
+                ? 'Too many requests. Please wait a moment and try again.'
+                : 'വളരെയധികം അഭ്യർത്ഥനകൾ. ഒരു നിമിഷം കാത്തിരിക്കുക, വീണ്ടും ശ്രമിക്കുക.';
+        } else {
+            errorText = currentLanguage === 'en' 
+                ? 'Sorry, I encountered an error while processing your question. Please try again.'
+                : 'ക്ഷമിക്കണം, നിങ്ങളുടെ ചോദ്യം പ്രോസസ്സ് ചെയ്യുന്നതിൽ പിശകുണ്ടായി. വീണ്ടും ശ്രമിക്കുക.';
+        }
+        
         const errorMessage = document.createElement('div');
         errorMessage.className = 'message ai';
-        errorMessage.textContent = currentLanguage === 'en' 
-            ? 'Sorry, I encountered an error. Please try again.'
-            : 'ക്ഷമിക്കണം, ഒരു പിശക് സംഭവിച്ചു. വീണ്ടും ശ്രമിക്കുക.';
+        errorMessage.textContent = errorText;
         messagesContainer.appendChild(errorMessage);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
@@ -1022,17 +1071,11 @@ function loadCrossDepartmentChat() {
         return;
     }
     
-    // Load some demo messages for the selected department
-    const demoMessages = [
-        {
-            text: currentLanguage === 'en' ? "Hello! How can we assist your department today?" : "ഹലോ! ഇന്ന് നിങ്ങളുടെ വകുപ്പിനെ എങ്ങനെ സഹായിക്കാം?",
-            sender: window.kmrlApp.departments[targetDept][currentLanguage === 'en' ? 'name' : 'nameML'],
-            type: 'ai'
-        }
-    ];
+    // Get realistic cross-department messages based on selected department
+    const crossDeptMessages = getCrossDepartmentMessages(targetDept);
     
     messagesContainer.innerHTML = '';
-    demoMessages.forEach(msg => {
+    crossDeptMessages.forEach(msg => {
         addChatMessage(messagesContainer, msg.text, msg.type, msg.sender);
     });
 }
@@ -1053,23 +1096,159 @@ function addChatMessage(container, message, type, sender) {
     container.scrollTop = container.scrollHeight;
 }
 
-function initializeDemoChats() {
-    // Initialize department chat with some demo messages
-    const deptMessages = document.getElementById('deptChatMessages');
-    const demoMessages = [
+function getCrossDepartmentMessages(targetDept) {
+    const messages = {
+        operations: [
+            {
+                text: currentLanguage === 'en' ? "Good morning! We need coordination for tomorrow's extended maintenance window from 02:00 to 05:00 AM." : "സുപ്രഭാതം! നാളത്തെ വിപുലീകൃത മെയിന്റനൻസ് വിൻഡോയ്ക്ക് രാത്രി 02:00 മുതൽ 05:00 വരെ ഏകോപനം ആവശ്യമാണ്.",
+                sender: currentLanguage === 'en' ? 'Operations Manager' : 'ഓപ്പറേഷൻസ് മാനേജർ',
+                type: 'ai'
+            },
+            {
+                text: currentLanguage === 'en' ? "Train frequency will be adjusted during peak hours. Please update passenger information systems." : "തിരക്കേറിയ സമയങ്ങളിൽ ട്രെയിൻ ആവൃത്തി ക്രമീകരിക്കും. യാത്രക്കാരുടെ വിവര സംവിധാനങ്ങൾ അപ്‌ഡേറ്റ് ചെയ്യുക.",
+                sender: currentLanguage === 'en' ? 'Train Controller' : 'ട്രെയിൻ കൺട്രോളർ',
+                type: 'ai'
+            }
+        ],
+        engineering: [
+            {
+                text: currentLanguage === 'en' ? "Track inspection completed on Line 1. Minor wear detected at KM 12.5, scheduling replacement next week." : "ലൈൻ 1-ൽ ട്രാക്ക് പരിശോധന പൂർത്തിയായി. KM 12.5-ൽ ചെറിയ തേയ്മാനം കണ്ടെത്തി, അടുത്ത ആഴ്ച മാറ്റിസ്ഥാപിക്കാൻ ഷെഡ്യൂൾ ചെയ്യുന്നു.",
+                sender: currentLanguage === 'en' ? 'Chief Engineer' : 'ചീഫ് എഞ്ചിനീയർ',
+                type: 'ai'
+            },
+            {
+                text: currentLanguage === 'en' ? "New spare parts inventory received. Please update your maintenance schedules accordingly." : "പുതിയ സ്പെയർ പാർട്സ് ഇൻവെന്ററി ലഭിച്ചു. അതിനനുസരിച്ച് നിങ്ങളുടെ മെയിന്റനൻസ് ഷെഡ്യൂളുകൾ അപ്‌ഡേറ്റ് ചെയ്യുക.",
+                sender: currentLanguage === 'en' ? 'Maintenance Supervisor' : 'മെയിന്റനൻസ് സൂപ്പർവൈസർ',
+                type: 'ai'
+            }
+        ],
+        signaling: [
+            {
+                text: currentLanguage === 'en' ? "ATP system upgrade scheduled for this weekend. All trains will operate under restricted speed during testing." : "ഈ വാരാന്ത്യത്തിൽ ATP സിസ്റ്റം അപ്‌ഗ്രേഡ് ഷെഡ്യൂൾ ചെയ്തിട്ടുണ്ട്. പരീക്ഷണ സമയത്ത് എല്ലാ ട്രെയിനുകളും നിയന്ത്രിത വേഗതയിൽ പ്രവർത്തിക്കും.",
+                sender: currentLanguage === 'en' ? 'Signal Engineer' : 'സിഗ്നൽ എഞ്ചിനീയർ',
+                type: 'ai'
+            },
+            {
+                text: currentLanguage === 'en' ? "CCTV cameras at Aluva station need maintenance. Scheduling visit tomorrow morning." : "ആലുവ സ്റ്റേഷനിലെ സിസിടിവി ക്യാമറകൾക്ക് മെയിന്റനൻസ് ആവശ്യമാണ്. നാളെ രാവിലെ സന്ദർശനം ഷെഡ്യൂൾ ചെയ്യുന്നു.",
+                sender: currentLanguage === 'en' ? 'Telecom Specialist' : 'ടെലികോം സ്പെഷ്യലിസ്റ്റ്',
+                type: 'ai'
+            }
+        ],
+        commercial: [
+            {
+                text: currentLanguage === 'en' ? "Monthly ridership report shows 15% increase. Need to discuss capacity management with operations." : "മാസിക റൈഡർഷിപ്പ് റിപ്പോർട്ട് 15% വർദ്ധനവ് കാണിക്കുന്നു. ഓപ്പറേഷൻസുമായി കപ്പാസിറ്റി മാനേജ്‌മെന്റ് ചർച്ച ചെയ്യേണ്ടതുണ്ട്.",
+                sender: currentLanguage === 'en' ? 'Commercial Manager' : 'കൊമേഴ്‌സ്യൽ മാനേജർ',
+                type: 'ai'
+            },
+            {
+                text: currentLanguage === 'en' ? "New QR code payment system deployment completed at all stations. Please update your training materials." : "എല്ലാ സ്റ്റേഷനുകളിലും പുതിയ QR കോഡ് പേയ്‌മെന്റ് സിസ്റ്റം വിന്യാസം പൂർത്തിയായി. നിങ്ങളുടെ പരിശീലന മെറ്റീരിയലുകൾ അപ്‌ഡേറ്റ് ചെയ്യുക.",
+                sender: currentLanguage === 'en' ? 'Revenue Officer' : 'റവന്യൂ ഓഫീസർ',
+                type: 'ai'
+            }
+        ],
+        safety: [
+            {
+                text: currentLanguage === 'en' ? "Safety drill scheduled for next Friday at 10:00 AM. All departments must participate." : "അടുത്ത വെള്ളിയാഴ്ച രാവിലെ 10:00 ന് സുരക്ഷാ അഭ്യാസം ഷെഡ്യൂൾ ചെയ്തിട്ടുണ്ട്. എല്ലാ വകുപ്പുകളും പങ്കെടുക്കണം.",
+                sender: currentLanguage === 'en' ? 'Safety Officer' : 'സേഫ്റ്റി ഓഫീസർ',
+                type: 'ai'
+            },
+            {
+                text: currentLanguage === 'en' ? "New safety protocols updated in manual. Please ensure all staff are briefed by end of week." : "മാനുവലിൽ പുതിയ സുരക്ഷാ പ്രോട്ടോക്കോളുകൾ അപ്‌ഡേറ്റ് ചെയ്തു. ആഴ്ചയുടെ അവസാനത്തോടെ എല്ലാ സ്റ്റാഫുകളെയും അറിയിച്ചിട്ടുണ്ടെന്ന് ഉറപ്പാക്കുക.",
+                sender: currentLanguage === 'en' ? 'Security Supervisor' : 'സെക്യൂരിറ്റി സൂപ്പർവൈസർ',
+                type: 'ai'
+            }
+        ],
+        electrical: [
+            {
+                text: currentLanguage === 'en' ? "Power supply optimization completed. 12% energy savings achieved across all stations." : "പവർ സപ്ലൈ ഒപ്റ്റിമൈസേഷൻ പൂർത്തിയായി. എല്ലാ സ്റ്റേഷനുകളിലും 12% ഊർജ്ജ ലാഭം കൈവരിച്ചു.",
+                sender: currentLanguage === 'en' ? 'Electrical Engineer' : 'ഇലക്ട്രിക്കൽ എഞ്ചിനീയർ',
+                type: 'ai'
+            },
+            {
+                text: currentLanguage === 'en' ? "UPS systems tested successfully. Backup power duration extended to 45 minutes." : "UPS സിസ്റ്റങ്ങൾ വിജയകരമായി പരീക്ഷിച്ചു. ബാക്കപ്പ് പവർ ദൈർഘ്യം 45 മിനിറ്റായി നീട്ടി.",
+                sender: currentLanguage === 'en' ? 'Power Supervisor' : 'പവർ സൂപ്പർവൈസർ',
+                type: 'ai'
+            }
+        ],
+        it: [
+            {
+                text: currentLanguage === 'en' ? "Network infrastructure upgrade completed. All systems now operating on fiber optic backbone." : "നെറ്റ്‌വർക്ക് ഇൻഫ്രാസ്ട്രക്ചർ അപ്‌ഗ്രേഡ് പൂർത്തിയായി. എല്ലാ സിസ്റ്റങ്ങളും ഇപ്പോൾ ഫൈബർ ഒപ്റ്റിക് ബാക്ക്‌ബോണിൽ പ്രവർത്തിക്കുന്നു.",
+                sender: currentLanguage === 'en' ? 'IT Manager' : 'ഐടി മാനേജർ',
+                type: 'ai'
+            },
+            {
+                text: currentLanguage === 'en' ? "Cybersecurity audit scheduled next week. Please prepare system access logs and documentation." : "അടുത്ത ആഴ്ച സൈബർ സെക്യൂരിറ്റി ഓഡിറ്റ് ഷെഡ്യൂൾ ചെയ്തിട്ടുണ്ട്. സിസ്റ്റം ആക്‌സസ് ലോഗുകളും ഡോക്യുമെന്റേഷനും തയ്യാറാക്കുക.",
+                sender: currentLanguage === 'en' ? 'System Administrator' : 'സിസ്റ്റം അഡ്മിനിസ്ട്രേറ്റർ',
+                type: 'ai'
+            }
+        ]
+    };
+    
+    return messages[targetDept] || [
         {
-            text: currentLanguage === 'en' ? "Good morning team! Any updates on today's operations?" : "ടീമിന് സുപ്രഭാതം! ഇന്നത്തെ പ്രവർത്തനങ്ങളിൽ എന്തെങ്കിലും അപ്‌ഡേറ്റുകൾ ഉണ്ടോ?",
-            sender: currentLanguage === 'en' ? 'Team Lead' : 'ടീം ലീഡ്',
-            type: 'ai'
-        },
-        {
-            text: currentLanguage === 'en' ? "All systems running smoothly. Morning inspection completed." : "എല്ലാ സിസ്റ്റങ്ങളും സുഗമമായി പ്രവർത്തിക്കുന്നു. രാവിലെ പരിശോധന പൂർത്തിയാക്കി.",
-            sender: currentLanguage === 'en' ? 'Colleague' : 'സഹപ്രവർത്തകൻ',
+            text: currentLanguage === 'en' ? "Hello! How can we assist your department today?" : "ഹലോ! ഇന്ന് നിങ്ങളുടെ വകുപ്പിനെ എങ്ങനെ സഹായിക്കാം?",
+            sender: window.kmrlApp.departments[targetDept][currentLanguage === 'en' ? 'name' : 'nameML'],
             type: 'ai'
         }
     ];
+}
+
+function getDepartmentMessages() {
+    const currentDept = currentUser.department;
     
-    demoMessages.forEach(msg => {
+    const deptMessages = {
+        operations: [
+            {
+                text: currentLanguage === 'en' ? "Good morning team! Today's service plan includes 6-minute headway during peak hours." : "ടീമിന് സുപ്രഭാതം! ഇന്നത്തെ സേവന പദ്ധതിയിൽ തിരക്കേറിയ സമയങ്ങളിൽ 6 മിനിറ്റ് ഹെഡ്‌വേ ഉൾപ്പെടുന്നു.",
+                sender: currentLanguage === 'en' ? 'Operations Manager' : 'ഓപ്പറേഷൻസ് മാനേജർ',
+                type: 'ai'
+            },
+            {
+                text: currentLanguage === 'en' ? "All morning inspections completed. Train fleet ready for passenger service." : "എല്ലാ രാവിലെ പരിശോധനകളും പൂർത്തിയായി. യാത്രക്കാരുടെ സേവനത്തിനായി ട്രെയിൻ ഫ്ലീറ്റ് തയ്യാറാണ്.",
+                sender: currentLanguage === 'en' ? 'Station Controller' : 'സ്റ്റേഷൻ കൺട്രോളർ',
+                type: 'ai'
+            },
+            {
+                text: currentLanguage === 'en' ? "Platform door synchronization test successful at all stations. No issues reported." : "എല്ലാ സ്റ്റേഷനുകളിലും പ്ലാറ്റ്‌ഫോം ഡോർ സിൻക്രൊണൈസേഷൻ ടെസ്റ്റ് വിജയകരമാണ്. പ്രശ്നങ്ങളൊന്നും റിപ്പോർട്ട് ചെയ്തിട്ടില്ല.",
+                sender: currentLanguage === 'en' ? 'Technical Supervisor' : 'ടെക്നിക്കൽ സൂപ്പർവൈസർ',
+                type: 'ai'
+            }
+        ],
+        engineering: [
+            {
+                text: currentLanguage === 'en' ? "Weekly maintenance schedule updated. Track inspection on Line 1 scheduled for Thursday." : "പ്രതിവാര മെയിന്റനൻസ് ഷെഡ്യൂൾ അപ്‌ഡേറ്റ് ചെയ്തു. ലൈൻ 1-ൽ ട്രാക്ക് പരിശോധന വ്യാഴാഴ്ച ഷെഡ്യൂൾ ചെയ്തിട്ടുണ്ട്.",
+                sender: currentLanguage === 'en' ? 'Chief Engineer' : 'ചീഫ് എഞ്ചിനീയർ',
+                type: 'ai'
+            },
+            {
+                text: currentLanguage === 'en' ? "New diagnostic equipment installed in depot. Training session scheduled for next Monday." : "ഡിപ്പോയിൽ പുതിയ ഡയഗ്നോസ്റ്റിക് ഉപകരണങ്ങൾ ഇൻസ്റ്റാൾ ചെയ്തു. അടുത്ത തിങ്കളാഴ്ച പരിശീലന സെഷൻ ഷെഡ്യൂൾ ചെയ്തിട്ടുണ്ട്.",
+                sender: currentLanguage === 'en' ? 'Maintenance Supervisor' : 'മെയിന്റനൻസ് സൂപ്പർവൈസർ',
+                type: 'ai'
+            }
+        ],
+        safety: [
+            {
+                text: currentLanguage === 'en' ? "Monthly safety meeting completed. Zero incidents reported this month - excellent work team!" : "മാസിക സുരക്ഷാ മീറ്റിംഗ് പൂർത്തിയായി. ഈ മാസം പൂജ്യം സംഭവങ്ങൾ റിപ്പോർട്ട് ചെയ്തു - മികച്ച പ്രവർത്തനം ടീം!",
+                sender: currentLanguage === 'en' ? 'Safety Officer' : 'സേഫ്റ്റി ഓഫീസർ',
+                type: 'ai'
+            },
+            {
+                text: currentLanguage === 'en' ? "Emergency response drill feedback received. Response time improved by 23% since last quarter." : "എമർജൻസി റെസ്‌പോൺസ് ഡ്രിൽ ഫീഡ്‌ബാക്ക് ലഭിച്ചു. കഴിഞ്ഞ ത്രൈമാസികത്തിനുശേഷം പ്രതികരണ സമയം 23% മെച്ചപ്പെട്ടു.",
+                sender: currentLanguage === 'en' ? 'Emergency Coordinator' : 'എമർജൻസി കോർഡിനേറ്റർ',
+                type: 'ai'
+            }
+        ]
+    };
+    
+    return deptMessages[currentDept] || [];
+}
+
+function initializeDemoChats() {
+    // Initialize department chat with realistic messages
+    const deptMessages = document.getElementById('deptChatMessages');
+    const messages = getDepartmentMessages();
+    
+    messages.forEach(msg => {
         addChatMessage(deptMessages, msg.text, msg.type, msg.sender);
     });
 }
@@ -1319,4 +1498,315 @@ function closeUploadModal() {
     // Clear upload queue and reset processing flag
     window.uploadQueue = [];
     isProcessingUpload = false;
+}
+
+// Search and Filter Functionality
+let filteredDocuments = [];
+let currentFilters = {
+    search: '',
+    source: '',
+    priority: '',
+    date: ''
+};
+
+function initializeSearchAndFilters() {
+    const searchInput = document.getElementById('documentSearch');
+    const clearSearchBtn = document.getElementById('clearSearch');
+    const sourceFilter = document.getElementById('sourceFilter');
+    const priorityFilter = document.getElementById('priorityFilter');  
+    const dateFilter = document.getElementById('dateFilter');
+    const applyFiltersBtn = document.getElementById('applyFilters');
+    const clearFiltersBtn = document.getElementById('clearFilters');
+    const gridViewBtn = document.getElementById('gridView');
+    const listViewBtn = document.getElementById('listView');
+
+    if (!searchInput) return; // Not on documents page
+    
+    // Update search placeholder based on language
+    updateSearchPlaceholder();
+
+    // Search input event listeners
+    searchInput.addEventListener('input', handleSearchInput);
+    clearSearchBtn.addEventListener('click', clearSearch);
+
+    // Filter event listeners
+    sourceFilter.addEventListener('change', () => {
+        currentFilters.source = sourceFilter.value;
+        applyFilters();
+    });
+
+    priorityFilter.addEventListener('change', () => {
+        currentFilters.priority = priorityFilter.value;
+        applyFilters();
+    });
+
+    dateFilter.addEventListener('change', () => {
+        currentFilters.date = dateFilter.value;
+        applyFilters();
+    });
+
+    // Filter action buttons
+    applyFiltersBtn.addEventListener('click', applyFilters);
+    clearFiltersBtn.addEventListener('click', clearAllFilters);
+
+    // View toggle buttons
+    gridViewBtn.addEventListener('click', () => switchView('grid'));
+    listViewBtn.addEventListener('click', () => switchView('list'));
+
+    // Initialize with all documents
+    applyFilters();
+}
+
+function handleSearchInput(event) {
+    const searchTerm = event.target.value.trim();
+    currentFilters.search = searchTerm;
+    
+    const clearBtn = document.getElementById('clearSearch');
+    clearBtn.style.display = searchTerm ? 'block' : 'none';
+    
+    // Debounce search
+    clearTimeout(window.searchTimeout);
+    window.searchTimeout = setTimeout(() => {
+        applyFilters();
+    }, 300);
+}
+
+function clearSearch() {
+    const searchInput = document.getElementById('documentSearch');
+    const clearBtn = document.getElementById('clearSearch');
+    
+    searchInput.value = '';
+    clearBtn.style.display = 'none';
+    currentFilters.search = '';
+    applyFilters();
+}
+
+function applyFilters() {
+    if (!currentUser || !currentUser.department) {
+        console.log('Current user not initialized yet, skipping filter application');
+        return;
+    }
+    
+    const userDept = currentUser.department;
+    const allDocs = window.kmrlApp.mockDocuments[userDept] || [];
+    
+    filteredDocuments = allDocs.filter(doc => {
+        // Search filter
+        if (currentFilters.search) {
+            const searchTerm = currentFilters.search.toLowerCase();
+            const titleMatch = doc.title.toLowerCase().includes(searchTerm);
+            const contentMatch = doc.content && doc.content.toLowerCase().includes(searchTerm);
+            const summaryMatch = doc.summary && doc.summary.toLowerCase().includes(searchTerm);
+            const typeMatch = doc.type && doc.type.toLowerCase().includes(searchTerm);
+            
+            if (!titleMatch && !contentMatch && !summaryMatch && !typeMatch) {
+                return false;
+            }
+        }
+
+        // Source filter
+        if (currentFilters.source && doc.source !== currentFilters.source) {
+            return false;
+        }
+
+        // Priority filter
+        if (currentFilters.priority && doc.priority !== currentFilters.priority) {
+            return false;
+        }
+
+        // Date filter
+        if (currentFilters.date && !matchesDateFilter(doc.uploadDate, currentFilters.date)) {
+            return false;
+        }
+
+        return true;
+    });
+
+    displayFilteredDocuments();
+    updateResultsCount();
+}
+
+function matchesDateFilter(docDate, filterType) {
+    const docDateObj = new Date(docDate);
+    const today = new Date();
+    
+    switch (filterType) {
+        case 'today':
+            return docDateObj.toDateString() === today.toDateString();
+        case 'week':
+            const weekAgo = new Date(today);
+            weekAgo.setDate(today.getDate() - 7);
+            return docDateObj >= weekAgo;
+        case 'month':
+            const monthAgo = new Date(today);
+            monthAgo.setMonth(today.getMonth() - 1);
+            return docDateObj >= monthAgo;
+        case 'quarter':
+            const quarterAgo = new Date(today);
+            quarterAgo.setMonth(today.getMonth() - 3);
+            return docDateObj >= quarterAgo;
+        default:
+            return true;
+    }
+}
+
+function displayFilteredDocuments() {
+    const container = document.getElementById('allDocs');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    if (filteredDocuments.length === 0) {
+        container.innerHTML = `
+            <div class="no-results">
+                <i class="fas fa-search"></i>
+                <h3 data-en="No documents found" data-ml="ഡോക്യുമെന്റുകളൊന്നും കണ്ടെത്തിയില്ല">No documents found</h3>
+                <p data-en="Try adjusting your search terms or filters" data-ml="തിരയൽ പദങ്ങൾ അല്ലെങ്കിൽ ഫിൽട്ടറുകൾ ക്രമീകരിക്കാൻ ശ്രമിക്കുക">Try adjusting your search terms or filters</p>
+            </div>
+        `;
+        updateLanguageDisplay();
+        return;
+    }
+
+    filteredDocuments.forEach(doc => {
+        const docElement = createDocumentElement(doc);
+        container.appendChild(docElement);
+    });
+
+    updateLanguageDisplay();
+}
+
+function updateResultsCount() {
+    const resultsCount = document.getElementById('resultsCount');
+    if (!resultsCount) return;
+
+    const total = filteredDocuments.length;
+    const allDocsCount = window.kmrlApp.mockDocuments[currentUser.department]?.length || 0;
+    
+    if (hasActiveFilters()) {
+        resultsCount.textContent = currentLanguage === 'en' 
+            ? `Showing ${total} of ${allDocsCount} documents`
+            : `${allDocsCount} ഡോക്യുമെന്റുകളിൽ ${total} കാണിക്കുന്നു`;
+    } else {
+        resultsCount.textContent = currentLanguage === 'en' 
+            ? `Showing all ${total} documents`
+            : `എല്ലാ ${total} ഡോക്യുമെന്റുകളും കാണിക്കുന്നു`;
+    }
+}
+
+function hasActiveFilters() {
+    return currentFilters.search || currentFilters.source || currentFilters.priority || currentFilters.date;
+}
+
+function clearAllFilters() {
+    // Clear form inputs
+    document.getElementById('documentSearch').value = '';
+    document.getElementById('sourceFilter').value = '';
+    document.getElementById('priorityFilter').value = '';
+    document.getElementById('dateFilter').value = '';
+    document.getElementById('clearSearch').style.display = 'none';
+
+    // Reset filters
+    currentFilters = {
+        search: '',
+        source: '',
+        priority: '',
+        date: ''
+    };
+
+    applyFilters();
+}
+
+function switchView(viewType) {
+    const container = document.getElementById('allDocs');
+    const gridBtn = document.getElementById('gridView');
+    const listBtn = document.getElementById('listView');
+
+    if (viewType === 'grid') {
+        container.className = 'documents-grid';
+        gridBtn.setAttribute('data-active', 'true');
+        listBtn.setAttribute('data-active', 'false');
+    } else {
+        container.className = 'documents-list';
+        gridBtn.setAttribute('data-active', 'false');
+        listBtn.setAttribute('data-active', 'true');
+    }
+}
+
+function createDocumentElement(doc) {
+    const docElement = document.createElement('div');
+    docElement.className = 'document-card';
+    
+    // Get priority color and icon
+    const priorityInfo = getPriorityInfo(doc.priority);
+    const sourceInfo = getSourceInfo(doc.source);
+    
+    docElement.innerHTML = `
+        <div class="document-header">
+            <div class="document-meta">
+                <h3 class="document-title">${doc.title}</h3>
+                <div class="document-source">
+                    <i class="${sourceInfo.icon}"></i>
+                    <span>${sourceInfo.label}</span>
+                    ${doc.priority ? `<span class="priority-badge priority-${doc.priority}" title="${priorityInfo.label}">
+                        <i class="${priorityInfo.icon}"></i>
+                        ${priorityInfo.label}
+                    </span>` : ''}
+                </div>
+            </div>
+            <div class="document-language">${doc.language}</div>
+        </div>
+        <div class="document-content">
+            <p class="document-summary">${getLocalizedText(doc, 'summary')}</p>
+            <div class="document-actions">
+                <span class="document-date">${window.kmrlApp.formatDate(doc.uploadDate)}</span>
+                <div class="action-buttons">
+                    <button class="btn-primary" onclick="viewDocument(${doc.id})">
+                        <i class="fas fa-eye"></i>
+                        <span data-en="View" data-ml="കാണുക">View</span>
+                    </button>
+                    <button class="btn-secondary" onclick="chatWithDocument(${doc.id})">
+                        <i class="fas fa-comments"></i>
+                        <span data-en="Chat" data-ml="ചാറ്റ്">Chat</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    return docElement;
+}
+
+function getPriorityInfo(priority) {
+    const priorityMap = {
+        urgent: { icon: 'fas fa-exclamation-triangle', label: currentLanguage === 'en' ? 'Urgent' : 'അടിയന്തിരം', color: '#dc3545' },
+        critical: { icon: 'fas fa-exclamation-circle', label: currentLanguage === 'en' ? 'Critical' : 'നിർണായകം', color: '#fd7e14' },
+        high: { icon: 'fas fa-arrow-up', label: currentLanguage === 'en' ? 'High' : 'ഉയർന്നത്', color: '#ffc107' },
+        medium: { icon: 'fas fa-minus', label: currentLanguage === 'en' ? 'Medium' : 'ഇടത്തരം', color: '#20c997' },
+        low: { icon: 'fas fa-arrow-down', label: currentLanguage === 'en' ? 'Low' : 'കുറഞ്ഞത്', color: '#6c757d' }
+    };
+    return priorityMap[priority] || { icon: 'fas fa-info', label: 'Unknown', color: '#6c757d' };
+}
+
+function getSourceInfo(source) {
+    const sourceMap = {
+        email: { icon: 'fas fa-envelope', label: currentLanguage === 'en' ? 'Email' : 'ഇമെയിൽ' },
+        whatsapp: { icon: 'fab fa-whatsapp', label: currentLanguage === 'en' ? 'WhatsApp' : 'വാട്സ്ആപ്പ്' },
+        maximo: { icon: 'fas fa-database', label: currentLanguage === 'en' ? 'Maximo Export' : 'മാക്സിമോ എക്സ്പോർട്ട്' },
+        uploaded: { icon: 'fas fa-upload', label: currentLanguage === 'en' ? 'Uploaded' : 'അപ്‌ലോഡ് ചെയ്തത്' },
+        internal: { icon: 'fas fa-building', label: currentLanguage === 'en' ? 'Internal System' : 'ആന്തരിക സിസ്റ്റം' },
+        external: { icon: 'fas fa-external-link-alt', label: currentLanguage === 'en' ? 'External Partner' : 'ബാഹ്യ പങ്കാളി' }
+    };
+    return sourceMap[source] || { icon: 'fas fa-file', label: source };
+}
+
+function updateSearchPlaceholder() {
+    const searchInput = document.getElementById('documentSearch');
+    if (!searchInput) return;
+    
+    const placeholder = currentLanguage === 'en' 
+        ? 'Search documents by title, content, or keywords...'
+        : 'ശീർഷകം, ഉള്ളടക്കം അല്ലെങ്കിൽ കീവേഡുകൾ വഴി ഡോക്യുമെന്റുകൾ തിരയുക...';
+    
+    searchInput.placeholder = placeholder;
 }

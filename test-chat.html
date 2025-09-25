@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Chat Feature</title>
+</head>
+<body>
+    <h1>Chat with Document Test</h1>
+    <div id="test-results"></div>
+    
+    <script src="env-config.js"></script>
+    <script src="gemini-service.js"></script>
+    <script>
+        async function testGeminiService() {
+            const results = document.getElementById('test-results');
+            results.innerHTML = '<p>Testing Gemini Service...</p>';
+            
+            try {
+                // Test service initialization
+                const service = new GeminiService();
+                results.innerHTML += '<p>✅ GeminiService initialized successfully</p>';
+                
+                // Test API key loading
+                if (window.envConfig && window.envConfig.GEMINI_API_KEY) {
+                    results.innerHTML += '<p>✅ API key found in configuration</p>';
+                } else {
+                    results.innerHTML += '<p>❌ API key not found in configuration</p>';
+                }
+                
+                // Test document chat with mock data
+                const mockDocument = {
+                    title: 'Test Document',
+                    content: 'This is a test document about KMRL project management.',
+                    contentML: 'ഇത് KMRL പ്രോജക്ട് മാനേജ്മെന്റിനെക്കുറിച്ചുള്ള ഒരു ടെസ്റ്റ് ഡോക്യുമെന്റാണ്.'
+                };
+                
+                results.innerHTML += '<p>🔄 Testing AI response...</p>';
+                
+                const response = await service.chatWithDocument("What is this document about?", mockDocument);
+                
+                if (response && response.length > 0) {
+                    results.innerHTML += '<p>✅ AI response received successfully</p>';
+                    results.innerHTML += `<div style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;"><strong>AI Response:</strong><br>${response}</div>`;
+                } else {
+                    results.innerHTML += '<p>❌ AI response was empty or invalid</p>';
+                }
+                
+            } catch (error) {
+                console.error('Test error:', error);
+                results.innerHTML += `<p>❌ Error during testing: ${error.message}</p>`;
+            }
+        }
+        
+        // Run test when page loads
+        window.addEventListener('load', testGeminiService);
+    </script>
+</body>
+</html>

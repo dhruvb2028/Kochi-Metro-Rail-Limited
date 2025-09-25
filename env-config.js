@@ -8,30 +8,66 @@ class EnvironmentConfig {
 
     async loadConfig() {
         try {
-            // In a real production environment, this would be loaded from a secure server endpoint
-            // For development/demo purposes, we'll use a fallback approach
+            // Try to load from secure config endpoint first
+            const configResponse = await fetch('/api/config').catch(() => null);
             
-            // Try to load from a config endpoint (you would implement this server-side)
-            const response = await fetch('/api/config').catch(() => null);
-            
-            if (response && response.ok) {
-                this.config = await response.json();
+            if (configResponse && configResponse.ok) {
+                this.config = await configResponse.json();
+                console.log('Environment configuration loaded from /api/config');
             } else {
-                // Fallback to environment variables (for local development)
+                // Fallback to local config
                 this.config = this.getLocalConfig();
+                console.log('Environment configuration loaded from fallback');
             }
-            
-            console.log('Environment configuration loaded');
         } catch (error) {
             console.warn('Failed to load environment config, using defaults:', error);
             this.config = this.getLocalConfig();
         }
     }
 
+    getEnvApiKey() {
+        // In a development environment, we need to securely reference the API key
+        // This is a placeholder - in practice, you'd have this loaded via a secure method
+        // For now, we'll return null and handle this in the service layer
+        const apiKey = process?.env?.GEMINI_API_KEY;
+        
+        if (!apiKey) {
+            // For development, read from window context if available
+            // This would be set by a secure initialization script
+            return window.KMRL_GEMINI_KEY || null;
+        }
+        
+        return apiKey;
+    }
+
+    parseEnvFile(envText) {
+        const config = {};
+        const lines = envText.split('\n');
+        
+        for (const line of lines) {
+            const trimmedLine = line.trim();
+            if (trimmedLine && !trimmedLine.startsWith('#')) {
+                const [key, ...valueParts] = trimmedLine.split('=');
+                if (key && valueParts.length > 0) {
+                    config[key.trim()] = valueParts.join('=').trim();
+                }
+            }
+        }
+        
+        // Add default values
+        config.APP_NAME = config.APP_NAME || 'KMRL Document Management System';
+        config.APP_VERSION = config.APP_VERSION || '1.0.0';
+        config.ENVIRONMENT = config.ENVIRONMENT || 'development';
+        config.PORT = config.PORT || 8000;
+        config.HOST = config.HOST || 'localhost';
+        
+        return config;
+    }
+
     getLocalConfig() {
-        // For development - in production, this should come from server
+        // Fallback configuration - API key should be loaded from .env file
         return {
-            GEMINI_API_KEY: process?.env?.GEMINI_API_KEY || 'AIzaSyA7lbppzwlt-2mZwIGualHEYfkGe6NMqOA',
+            GEMINI_API_KEY: process?.env?.GEMINI_API_KEY || null, // No hardcoded key
             APP_NAME: 'KMRL Document Management System',
             APP_VERSION: '1.0.0',
             ENVIRONMENT: 'development',
@@ -45,7 +81,12 @@ class EnvironmentConfig {
     }
 
     getGeminiApiKey() {
-        return this.get('GEMINI_API_KEY');
+        const apiKey = this.get('GEMINI_API_KEY');
+        if (!apiKey) {
+            console.error('GEMINI_API_KEY not found in environment configuration');
+            throw new Error('GEMINI_API_KEY is required but not configured');
+        }
+        return apiKey;
     }
 
     getAppName() {

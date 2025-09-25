@@ -12,7 +12,9 @@
     --shadow: 0 2px 10px rgba(0,0,0,0.1);
     --transition: all 0.3s ease;
 }
-
+/* #navbar-title #deptName{
+    color: white;
+} */
 * {
     margin: 0;
     padding: 0;
@@ -273,7 +275,7 @@ body {
 }
 
 .nav-header {
-    background: var(--gov-primary);s
+    background: var(--gov-primary);
     color: white;
     padding: 15px 0;
     box-shadow: var(--shadow);
@@ -445,10 +447,251 @@ body {
 }
 
 /* Document Cards */
+/* Search and Filter Styles */
+.search-filter-section {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    padding: 25px;
+    margin-bottom: 25px;
+}
+
+.search-bar-container {
+    margin-bottom: 20px;
+}
+
+.search-input-wrapper {
+    position: relative;
+    max-width: 600px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+    font-size: 16px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 15px 15px 15px 45px;
+    border: 2px solid #e1e5e9;
+    border-radius: var(--border-radius);
+    font-size: 16px;
+    transition: var(--transition);
+    background: #f8f9fa;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--gov-primary);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(0, 51, 51, 0.1);
+}
+
+.clear-search {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+.clear-search:hover {
+    background: #f0f0f0;
+    color: var(--gov-primary);
+}
+
+.filters-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: end;
+    margin-bottom: 20px;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 150px;
+}
+
+.filter-label {
+    font-weight: 600;
+    color: var(--gov-dark);
+    font-size: 14px;
+}
+
+.filter-select {
+    padding: 12px 15px;
+    border: 2px solid #e1e5e9;
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    background: white;
+    color: var(--gov-dark);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: var(--gov-primary);
+    box-shadow: 0 0 0 3px rgba(0, 51, 51, 0.1);
+}
+
+.filter-actions {
+    display: flex;
+    gap: 10px;
+    align-items: end;
+}
+
+.filter-btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.apply-filters {
+    background: var(--gov-primary);
+    color: white;
+}
+
+.apply-filters:hover {
+    background: var(--gov-primary-dark);
+    transform: translateY(-1px);
+}
+
+.clear-filters {
+    background: #f8f9fa;
+    color: var(--gov-dark);
+    border: 2px solid #e1e5e9;
+}
+
+.clear-filters:hover {
+    background: #e9ecef;
+    border-color: #ced4da;
+}
+
+.results-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 20px;
+    border-top: 2px solid #f0f0f0;
+    font-size: 14px;
+    color: #666;
+}
+
+.view-options {
+    display: flex;
+    gap: 5px;
+}
+
+.view-btn {
+    padding: 8px 12px;
+    border: 2px solid #e1e5e9;
+    background: white;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+    color: #666;
+}
+
+.view-btn:hover {
+    border-color: var(--gov-primary);
+    color: var(--gov-primary);
+}
+
+.view-btn[data-active="true"] {
+    background: var(--gov-primary);
+    border-color: var(--gov-primary);
+    color: white;
+}
+
 .documents-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
     gap: 20px;
+}
+
+.documents-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Priority Badge Styles */
+.priority-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: white;
+    margin-left: 8px;
+}
+
+.priority-urgent {
+    background: #dc3545;
+}
+
+.priority-critical {
+    background: #fd7e14;
+}
+
+.priority-high {
+    background: #ffc107;
+    color: #000;
+}
+
+.priority-medium {
+    background: #20c997;
+}
+
+.priority-low {
+    background: #6c757d;
+}
+
+/* No Results Styles */
+.no-results {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+}
+
+.no-results i {
+    font-size: 4rem;
+    color: #ddd;
+    margin-bottom: 20px;
+}
+
+.no-results h3 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: var(--gov-dark);
+}
+
+.no-results p {
+    font-size: 1rem;
+    margin: 0;
 }
 
 .document-card {
@@ -756,6 +999,35 @@ body {
     .login-card {
         padding: 30px;
         margin: 20px;
+    }
+    
+    .search-filter-section {
+        padding: 20px;
+    }
+    
+    .filters-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .filter-group {
+        min-width: 100%;
+    }
+    
+    .filter-actions {
+        justify-content: center;
+        width: 100%;
+    }
+    
+    .filter-btn {
+        flex: 1;
+        justify-content: center;
+    }
+    
+    .results-info {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
     }
     
     .sidebar {

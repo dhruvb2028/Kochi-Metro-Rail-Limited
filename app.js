@@ -25,7 +25,8 @@ const mockDocuments = {
         {
             id: 1,
             title: "Daily Operations Report - Phase 2 Extension",
-            source: "SharePoint repositories",
+            source: "internal",
+            priority: "medium",
             language: "English",
             uploadDate: "2024-09-24",
             content: "The Phase 2 extension of Kochi Metro has been showing remarkable progress with daily ridership exceeding 85,000 passengers. The new stations at Kakkanad and InfoPark have been particularly successful in attracting IT professionals and students. Train frequency has been optimized to every 4 minutes during peak hours and every 8 minutes during off-peak hours. The operations team has successfully managed 347 train services daily with 99.2% on-time performance. Key operational highlights include implementation of new crowd management protocols at major interchange stations, introduction of digital passenger information systems across all platforms, and integration of real-time tracking systems for better service reliability. Maintenance windows have been scheduled between 11:30 PM and 5:30 AM to ensure minimal disruption to passenger services. The technical team has reported excellent performance from the rolling stock with minimal breakdown incidents. Energy consumption has been optimized through regenerative braking systems, resulting in 15% reduction in overall power consumption compared to previous quarters.",
@@ -35,7 +36,8 @@ const mockDocuments = {
         {
             id: 2,
             title: "Incident Report - Signal Malfunction at Aluva Station",
-            source: "Maximo exports",
+            source: "maximo",
+            priority: "urgent",
             language: "English",
             uploadDate: "2024-09-23",
             content: "On September 23, 2024, at approximately 14:30 hours, a signal malfunction was reported at Aluva station affecting the northbound track. The incident was triggered by a power fluctuation in the signaling control system, causing automatic safety protocols to activate and halt train movements for 23 minutes. The technical response team was immediately dispatched and arrived on-site within 8 minutes of the incident report. Initial diagnostics revealed a faulty relay in the signal control panel, which was promptly replaced with a backup unit from the station's emergency inventory. During the incident period, passenger announcements were made in both English and Malayalam explaining the delay and expected resolution time. Alternative transportation arrangements were coordinated with KSRTC for passengers requiring immediate connectivity. The signaling system was fully restored at 14:53 hours, and normal train operations resumed with a minor 5-minute delay propagation across the network. Post-incident analysis revealed that the relay had exceeded its operational lifecycle and was due for replacement as per the preventive maintenance schedule. All similar relays across the network have been marked for immediate inspection and replacement if necessary.",
@@ -47,7 +49,8 @@ const mockDocuments = {
         {
             id: 3,
             title: "Rolling Stock Maintenance Schedule - Q4 2024",
-            source: "e-mail",
+            source: "email",
+            priority: "high",
             language: "English",
             uploadDate: "2024-09-22",
             content: "The comprehensive rolling stock maintenance schedule for Q4 2024 has been finalized after detailed consultation with technical teams and operational requirements. The schedule includes major overhauls for 8 train sets, minor maintenance for 24 units, and routine inspections for all 32 operational trains. Major overhaul activities will focus on traction motor replacements, brake system upgrades, and air conditioning system modernization. Each major overhaul is estimated to take 15 days per train set, requiring careful coordination with operations to maintain service levels. The maintenance facility at Muttom depot has been equipped with new diagnostic equipment including ultrasonic testing apparatus, thermal imaging cameras, and computerized alignment systems. Spare parts inventory has been updated with critical components including traction motors, brake discs, door mechanisms, and HVAC units. The engineering team has developed a predictive maintenance program using IoT sensors to monitor train performance parameters in real-time. This system will help identify potential issues before they cause service disruptions. Additionally, the maintenance schedule includes upgrades to the train control and management systems (TCMS) to improve energy efficiency and passenger comfort. All maintenance activities will be conducted in compliance with Commissioner of Metro Railway Safety guidelines and international best practices.",
@@ -67,7 +70,8 @@ const mockDocuments = {
         {
             id: 21,
             title: "Environmental Clearance Update - Phase 3 Extension",
-            source: "regulatory directives",
+            source: "external",
+            priority: "critical",
             language: "English",
             uploadDate: "2024-09-16",
             content: "The environmental clearance application for Phase 3 extension of Kochi Metro has received preliminary approval from the Ministry of Environment, Forest and Climate Change. The proposed 11.2 km extension from Kakkanad to Angamaly will include 9 stations and is expected to serve approximately 60,000 additional passengers daily. Environmental impact assessment studies have been completed covering air quality, noise pollution, water resources, flora and fauna, and socio-economic impact on local communities. The assessment confirms minimal adverse environmental impact with several positive outcomes including reduced vehicular traffic, lower carbon emissions, and improved urban mobility. Mitigation measures have been proposed for construction phase impacts including dust control, noise barriers, and waste management protocols. The project will incorporate green building standards for all stations with rainwater harvesting, solar power generation, and energy-efficient lighting systems. Tree plantation program will offset any vegetation loss during construction with a 3:1 replacement ratio. Community consultation meetings have been conducted in affected areas with overall positive response from residents and local bodies. The final environmental clearance is expected by November 2024, conditional upon implementation of proposed mitigation measures and compliance monitoring protocols. Construction activities will be scheduled to minimize impact on monsoon seasons and local festivals. Regular environmental monitoring will be conducted throughout the project lifecycle with quarterly reports to regulatory authorities.",
@@ -194,6 +198,54 @@ const departments = {
         nameML: "സുരക്ഷ & സെക്യൂരിറ്റി",
         icon: "fas fa-shield-alt",
         users: ["safety_officer", "security_supervisor", "emergency_coordinator"]
+    },
+    civil: {
+        name: "Civil Engineering",
+        nameML: "സിവിൽ എഞ്ചിനീയറിംഗ്",
+        icon: "fas fa-building",
+        users: ["civil_engineer", "structural_inspector", "project_coordinator"]
+    },
+    electrical: {
+        name: "Electrical & Systems",
+        nameML: "ഇലക്ട്രിക്കൽ & സിസ്റ്റംസ്",
+        icon: "fas fa-bolt",
+        users: ["electrical_engineer", "systems_technician", "power_supervisor"]
+    },
+    signaling: {
+        name: "Signaling & Telecom",
+        nameML: "സിഗ്നലിംഗ് & ടെലികോം",
+        icon: "fas fa-broadcast-tower",
+        users: ["signal_engineer", "telecom_specialist", "control_operator"]
+    },
+    commercial: {
+        name: "Commercial",
+        nameML: "കൊമേഴ്‌സ്യൽ",
+        icon: "fas fa-handshake",
+        users: ["commercial_manager", "revenue_officer", "customer_service"]
+    },
+    planning: {
+        name: "Planning & Development",
+        nameML: "പ്ലാനിംഗ് & ഡെവലപ്‌മെന്റ്",
+        icon: "fas fa-chart-line",
+        users: ["planning_officer", "project_manager", "development_coordinator"]
+    },
+    legal: {
+        name: "Legal & Land",
+        nameML: "നിയമ & ഭൂമി",
+        icon: "fas fa-gavel",
+        users: ["legal_advisor", "land_officer", "compliance_manager"]
+    },
+    it: {
+        name: "Information Technology",
+        nameML: "ഇൻഫർമേഷൻ ടെക്‌നോളജി",
+        icon: "fas fa-laptop",
+        users: ["it_manager", "system_admin", "network_engineer"]
+    },
+    environment: {
+        name: "Environment & Social",
+        nameML: "പരിസ്ഥിതി & സാമൂഹിക",
+        icon: "fas fa-leaf",
+        users: ["env_officer", "social_coordinator", "sustainability_manager"]
     },
     legal: {
         name: "Legal & Compliance",

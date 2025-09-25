@@ -1,0 +1,8 @@
+{
+    "APP_NAME": "KMRL Document Management System",
+    "APP_VERSION": "1.0.0",
+    "ENVIRONMENT": "development",
+    "PORT": 8000,
+    "HOST": "localhost",
+    "USE_ENV_FILE": true
+}

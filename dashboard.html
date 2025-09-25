@@ -15,7 +15,7 @@
                     <div class="gov-logo-section">
                         <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHZpZXdCb3g9IjAgMCAzMCAzMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTUiIGN5PSIxNSIgcj0iMTUiIGZpbGw9IiNGRkY3MDAiLz4KPHN2ZyB4PSI0IiB5PSI0IiB3aWR0aD0iMjIiIGhlaWdodD0iMjIiIHZpZXdCb3g9IjAgMCAyMiAyMiIgZmlsbD0ibm9uZSI+CjxwYXRoIGQ9Ik0xMSAyTDE5IDhWMjFIM1Y4TDExIDJaIiBzdHJva2U9IiMwMDMzMzMiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIi8+CjxwYXRoIGQ9Ik03IDEySDExIiBzdHJva2U9IiMwMDMzMzMiIHN0cm9rZS13aWR0aD0iMS41Ii8+Cjwvc3ZnPgo8L3N2Zz4=" alt="KMRL" class="nav-logo">
                         <div class="dept-info">
-                            <h3 data-en="KMRL Dashboard" data-ml="KMRL ഡാഷ്ബോർഡ്">KMRL Dashboard</h3>
+                            <h3 id="navbar-title" data-en="KMRL Dashboard" data-ml="KMRL ഡാഷ്ബോർഡ്">KMRL Dashboard</h3>
                             <span class="dept-name" id="deptName">Operations</span>
                         </div>
                     </div>
@@ -132,6 +132,83 @@
                     <div class="page-header">
                         <h1 data-en="Documents" data-ml="ഡോക്യുമെന്റുകൾ">Documents</h1>
                         <p data-en="Browse and search through all department documents" data-ml="എല്ലാ ഡിപ്പാർട്ട്മെന്റ് ഡോക്യുമെന്റുകളും ബ്രൗസ് ചെയ്യുകയും തിരയുകയും ചെയ്യുക">Browse and search through all department documents</p>
+                    </div>
+
+                    <!-- Search and Filter Section -->
+                    <div class="search-filter-section">
+                        <div class="search-bar-container">
+                            <div class="search-input-wrapper">
+                                <i class="fas fa-search search-icon"></i>
+                                <input type="text" id="documentSearch" class="search-input" 
+                                       data-en-placeholder="Search documents by title, content, or keywords..." 
+                                       data-ml-placeholder="ശീർഷകം, ഉള്ളടക്കം അല്ലെങ്കിൽ കീവേഡുകൾ വഴി ഡോക്യുമെന്റുകൾ തിരയുക..."
+                                       placeholder="Search documents by title, content, or keywords...">
+                                <button class="clear-search" id="clearSearch" style="display: none;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="filters-container">
+                            <div class="filter-group">
+                                <label class="filter-label" data-en="Source:" data-ml="ഉറവിടം:">Source:</label>
+                                <select id="sourceFilter" class="filter-select">
+                                    <option value="" data-en="All Sources" data-ml="എല്ലാ ഉറവിടങ്ങളും">All Sources</option>
+                                    <option value="email" data-en="Email" data-ml="ഇമെയിൽ">Email</option>
+                                    <option value="whatsapp" data-en="WhatsApp" data-ml="വാട്സ്ആപ്പ്">WhatsApp</option>
+                                    <option value="maximo" data-en="Maximo Export" data-ml="മാക്സിമോ എക്സ്പോർട്ട്">Maximo Export</option>
+                                    <option value="uploaded" data-en="Uploaded" data-ml="അപ്‌ലോഡ് ചെയ്തത്">Uploaded</option>
+                                    <option value="internal" data-en="Internal System" data-ml="ആന്തരിക സിസ്റ്റം">Internal System</option>
+                                    <option value="external" data-en="External Partner" data-ml="ബാഹ്യ പങ്കാളി">External Partner</option>
+                                </select>
+                            </div>
+
+                            <div class="filter-group">
+                                <label class="filter-label" data-en="Priority:" data-ml="മുൻഗണന:">Priority:</label>
+                                <select id="priorityFilter" class="filter-select">
+                                    <option value="" data-en="All Priorities" data-ml="എല്ലാ മുൻഗണനകളും">All Priorities</option>
+                                    <option value="urgent" data-en="Urgent" data-ml="അടിയന്തിരം">Urgent</option>
+                                    <option value="critical" data-en="Critical" data-ml="നിർണായകം">Critical</option>
+                                    <option value="high" data-en="High" data-ml="ഉയർന്നത്">High</option>  
+                                    <option value="medium" data-en="Medium" data-ml="ഇടത്തരം">Medium</option>
+                                    <option value="low" data-en="Low" data-ml="കുറഞ്ഞത്">Low</option>
+                                </select>
+                            </div>
+
+                            <div class="filter-group">
+                                <label class="filter-label" data-en="Date:" data-ml="തീയതി:">Date:</label>
+                                <select id="dateFilter" class="filter-select">
+                                    <option value="" data-en="All Dates" data-ml="എല്ലാ തീയതികളും">All Dates</option>
+                                    <option value="today" data-en="Today" data-ml="ഇന്ന്">Today</option>
+                                    <option value="week" data-en="This Week" data-ml="ഈ ആഴ്ച">This Week</option>
+                                    <option value="month" data-en="This Month" data-ml="ഈ മാസം">This Month</option>
+                                    <option value="quarter" data-en="This Quarter" data-ml="ഈ പാദം">This Quarter</option>
+                                </select>
+                            </div>
+
+                            <div class="filter-actions">
+                                <button class="filter-btn apply-filters" id="applyFilters">
+                                    <i class="fas fa-filter"></i>
+                                    <span data-en="Apply" data-ml="പ്രയോഗിക്കുക">Apply</span>
+                                </button>
+                                <button class="filter-btn clear-filters" id="clearFilters">
+                                    <i class="fas fa-undo"></i>
+                                    <span data-en="Clear" data-ml="മായ്ക്കുക">Clear</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="results-info">
+                            <span id="resultsCount" data-en="Showing all documents" data-ml="എല്ലാ ഡോക്യുമെന്റുകളും കാണിക്കുന്നു">Showing all documents</span>
+                            <div class="view-options">
+                                <button class="view-btn" id="gridView" data-active="true">
+                                    <i class="fas fa-th-large"></i>
+                                </button>
+                                <button class="view-btn" id="listView">
+                                    <i class="fas fa-list"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="documents-grid" id="allDocs">
@@ -283,6 +360,7 @@
 
     <script src="env-config.js"></script>
     <script src="config.js"></script>
+    <script src="gemini-service.js"></script>
     <script src="app.js"></script>
     <script src="extended-data.js"></script>
     <script src="dashboard.js"></script>
