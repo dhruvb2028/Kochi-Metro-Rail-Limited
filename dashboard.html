@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - KMRL Document Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard" id="dashboard">
+        <nav class="nav-header">
+            <div class="container nav-container">
+                <div class="nav-left">
+                    <div class="gov-logo-section">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHZpZXdCb3g9IjAgMCAzMCAzMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTUiIGN5PSIxNSIgcj0iMTUiIGZpbGw9IiNGRkY3MDAiLz4KPHN2ZyB4PSI0IiB5PSI0IiB3aWR0aD0iMjIiIGhlaWdodD0iMjIiIHZpZXdCb3g9IjAgMCAyMiAyMiIgZmlsbD0ibm9uZSI+CjxwYXRoIGQ9Ik0xMSAyTDE5IDhWMjFIM1Y4TDExIDJaIiBzdHJva2U9IiMwMDMzMzMiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIi8+CjxwYXRoIGQ9Ik03IDEySDExIiBzdHJva2U9IiMwMDMzMzMiIHN0cm9rZS13aWR0aD0iMS41Ii8+Cjwvc3ZnPgo8L3N2Zz4=" alt="KMRL" class="nav-logo">
+                        <div class="dept-info">
+                            <h3 data-en="KMRL Dashboard" data-ml="KMRL ഡാഷ്ബോർഡ്">KMRL Dashboard</h3>
+                            <span class="dept-name" id="deptName">Operations</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="nav-right">
+                    <div class="lang-toggle">
+                        <button id="langToggle" onclick="toggleLanguage()">
+                            <span id="langText">മലയാളം</span>
+                        </button>
+                    </div>
+                    <div class="user-info">
+                        <i class="fas fa-user"></i>
+                        <span id="userName">User</span>
+                    </div>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span data-en="Logout" data-ml="ലോഗൗട്ട്">Logout</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="dashboard-content">
+            <aside class="sidebar">
+                <ul class="sidebar-menu">
+                    <li>
+                        <a href="#" onclick="showPage('dashboard')" class="active">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span data-en="Dashboard" data-ml="ഡാഷ്ബോർഡ്">Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="showPage('documents')">
+                            <i class="fas fa-file-alt"></i>
+                            <span data-en="Documents" data-ml="ഡോക്യുമെന്റുകൾ">Documents</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="showPage('upload')">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span data-en="Upload Document" data-ml="ഡോക്യുമെന്റ് അപ്‌ലോഡ് ചെയ്യുക">Upload Document</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="showPage('department-chat')">
+                            <i class="fas fa-comments"></i>
+                            <span data-en="Department Chat" data-ml="വകുപ്പ് ചാറ്റ്">Department Chat</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="showPage('cross-chat')">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span data-en="Cross-Department Chat" data-ml="ക്രോസ്-ഡിപ്പാർട്ട്മെന്റ് ചാറ്റ്">Cross-Department Chat</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="showPage('settings')">
+                            <i class="fas fa-cog"></i>
+                            <span data-en="Settings" data-ml="സെറ്റിംഗുകൾ">Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </aside>
+
+            <main class="main-content">
+                <!-- Dashboard Page -->
+                <div id="dashboard-page" class="page active">
+                    <div class="page-header">
+                        <h1 data-en="Welcome to KMRL Document Management" data-ml="KMRL ഡോക്യുമെന്റ് മാനേജ്മെന്റിലേക്ക് സ്വാഗതം">Welcome to KMRL Document Management</h1>
+                        <p data-en="AI-powered document processing and cross-department collaboration" data-ml="AI-പവർഡ് ഡോക്യുമെന്റ് പ്രോസസ്സിംഗും ക്രോസ്-ഡിപ്പാർട്ട്മെന്റ് സഹകരണവും">AI-powered document processing and cross-department collaboration</p>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div class="stat-number" id="totalDocs">156</div>
+                            <div class="stat-label" data-en="Total Documents" data-ml="മൊത്തം ഡോക്യുമെന്റുകൾ">Total Documents</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="stat-number" id="processedToday">23</div>
+                            <div class="stat-label" data-en="Processed Today" data-ml="ഇന്ന് പ്രോസസ്സ് ചെയ്തത്">Processed Today</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-number" id="pendingReview">7</div>
+                            <div class="stat-label" data-en="Pending Review" data-ml="അവലോകനത്തിനായി കാത്തിരിക്കുന്നു">Pending Review</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="stat-number" id="aiSummaries">142</div>
+                            <div class="stat-label" data-en="AI Summaries" data-ml="AI സംഗ്രഹങ്ങൾ">AI Summaries</div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h2 data-en="Recent Documents" data-ml="സമീപകാല ഡോക്യുമെന്റുകൾ">Recent Documents</h2>
+                        <div class="documents-grid" id="recentDocs">
+                            <!-- Documents will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Documents Page -->
+                <div id="documents-page" class="page">
+                    <div class="page-header">
+                        <h1 data-en="Documents" data-ml="ഡോക്യുമെന്റുകൾ">Documents</h1>
+                        <p data-en="Browse and search through all department documents" data-ml="എല്ലാ ഡിപ്പാർട്ട്മെന്റ് ഡോക്യുമെന്റുകളും ബ്രൗസ് ചെയ്യുകയും തിരയുകയും ചെയ്യുക">Browse and search through all department documents</p>
+                    </div>
+                    
+                    <div class="documents-grid" id="allDocs">
+                        <!-- All documents will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Upload Page -->
+                <div id="upload-page" class="page">
+                    <div class="page-header">
+                        <h1 data-en="Upload Document" data-ml="ഡോക്യുമെന്റ് അപ്‌ലോഡ് ചെയ്യുക">Upload Document</h1>
+                        <p data-en="Upload new documents for AI processing and analysis" data-ml="AI പ്രോസസ്സിംഗിനും വിശകലനത്തിനുമായി പുതിയ ഡോക്യുമെന്റുകൾ അപ്‌ലോഡ് ചെയ്യുക">Upload new documents for AI processing and analysis</p>
+                    </div>
+
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <div class="upload-text" data-en="Drag and drop files here or click to browse" data-ml="ഫയലുകൾ ഇവിടെ ഡ്രാഗ് ആൻഡ് ഡ്രോപ് ചെയ്യുക അല്ലെങ്കിൽ ബ്രൗസ് ചെയ്യാൻ ക്ലിക്ക് ചെയ്യുക">
+                            Drag and drop files here or click to browse
+                        </div>
+                        <div class="upload-subtext" data-en="Supports PDF, DOC, DOCX, PNG, JPG files" data-ml="PDF, DOC, DOCX, PNG, JPG ഫയലുകൾ പിന്തുണയ്ക്കുന്നു">
+                            Supports PDF, DOC, DOCX, PNG, JPG files
+                        </div>
+                        <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" multiple style="display: none;">
+                    </div>
+                </div>
+
+                <!-- Department Chat Page -->
+                <div id="department-chat-page" class="page">
+                    <div class="page-header">
+                        <h1 data-en="Department Chat" data-ml="വകുപ്പ് ചാറ്റ്">Department Chat</h1>
+                        <p data-en="Communicate with colleagues in your department" data-ml="നിങ്ങളുടെ വകുപ്പിലെ സഹപ്രവർത്തകരുമായി ആശയവിനിമയം നടത്തുക">Communicate with colleagues in your department</p>
+                    </div>
+
+                    <div class="chat-interface">
+                        <div class="chat-messages" id="deptChatMessages">
+                            <!-- Department chat messages will appear here -->
+                        </div>
+                        <div class="chat-input-area">
+                            <input type="text" class="chat-input" id="deptChatInput" 
+                                   placeholder="Type your message...">
+                            <button class="chat-send" onclick="sendDepartmentMessage()">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cross-Department Chat Page -->
+                <div id="cross-chat-page" class="page">
+                    <div class="page-header">
+                        <h1 data-en="Cross-Department Chat" data-ml="ക്രോസ്-ഡിപ്പാർട്ട്മെന്റ് ചാറ്റ്">Cross-Department Chat</h1>
+                        <p data-en="Coordinate with other departments for better collaboration" data-ml="മെച്ചപ്പെട്ട സഹകരണത്തിനായി മറ്റ് വകുപ്പുകളുമായി ഏകോപിപ്പിക്കുക">Coordinate with other departments for better collaboration</p>
+                    </div>
+
+                    <div class="cross-chat-container">
+                        <div class="dept-selector">
+                            <label for="targetDept" data-en="Select Department:" data-ml="വകുപ്പ് തിരഞ്ഞെടുക്കുക:">Select Department:</label>
+                            <select id="targetDept" onchange="loadCrossDepartmentChat()">
+                                <option value="" data-en="Choose department..." data-ml="വകുപ്പ് തിരഞ്ഞെടുക്കുക...">Choose department...</option>
+                            </select>
+                        </div>
+
+                        <div class="chat-interface">
+                            <div class="chat-messages" id="crossChatMessages">
+                                <!-- Cross-department chat messages will appear here -->
+                            </div>
+                            <div class="chat-input-area">
+                                <input type="text" class="chat-input" id="crossChatInput" 
+                                       placeholder="Type your message...">
+                                <button class="chat-send" onclick="sendCrossDepartmentMessage()">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Page -->
+                <div id="settings-page" class="page">
+                    <div class="page-header">
+                        <h1 data-en="Settings" data-ml="സെറ്റിംഗുകൾ">Settings</h1>
+                        <p data-en="Configure your preferences and system settings" data-ml="നിങ്ങളുടെ മുൻഗണനകളും സിസ്റ്റം സെറ്റിംഗുകളും കോൺഫിഗർ ചെയ്യുക">Configure your preferences and system settings</p>
+                    </div>
+
+                    <div class="settings-content">
+                        <div class="setting-section">
+                            <h3 data-en="Language Settings" data-ml="ഭാഷാ സെറ്റിംഗുകൾ">Language Settings</h3>
+                            <div class="setting-item">
+                                <label data-en="Interface Language:" data-ml="ഇന്റർഫേസ് ഭാഷ:">Interface Language:</label>
+                                <select id="languageSetting">
+                                    <option value="en">English</option>
+                                    <option value="ml">മലയാളം</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="setting-section">
+                            <h3 data-en="Notification Settings" data-ml="അറിയിപ്പ് സെറ്റിംഗുകൾ">Notification Settings</h3>
+                            <div class="setting-item">
+                                <label>
+                                    <input type="checkbox" id="emailNotifications" checked>
+                                    <span data-en="Email notifications for new documents" data-ml="പുതിയ ഡോക്യുമെന്റുകൾക്കുള്ള ഇമെയിൽ അറിയിപ്പുകൾ">Email notifications for new documents</span>
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <label>
+                                    <input type="checkbox" id="chatNotifications" checked>
+                                    <span data-en="Chat message notifications" data-ml="ചാറ്റ് സന്ദേശ അറിയിപ്പുകൾ">Chat message notifications</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="setting-section">
+                            <h3 data-en="AI Processing Settings" data-ml="AI പ്രോസസ്സിംഗ് സെറ്റിംഗുകൾ">AI Processing Settings</h3>
+                            <div class="setting-item">
+                                <label>
+                                    <input type="checkbox" id="autoSummarize" checked>
+                                    <span data-en="Automatically generate summaries for uploaded documents" data-ml="അപ്‌ലോഡ് ചെയ്ത ഡോക്യുമെന്റുകൾക്ക് സ്വയമേവ സംഗ്രഹങ്ങൾ സൃഷ്ടിക്കുക">Automatically generate summaries for uploaded documents</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Document Chat Modal -->
+    <div class="chat-container" id="docChatContainer">
+        <div class="chat-window">
+            <div class="chat-header">
+                <h3 id="chatDocTitle">Chat with Document</h3>
+                <button class="chat-close" onclick="closeDocumentChat()">&times;</button>
+            </div>
+            <div class="chat-messages" id="docChatMessages">
+                <!-- Document chat messages will appear here -->
+            </div>
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="docChatInput" 
+                       placeholder="Ask a question about this document...">
+                <button class="chat-send" onclick="sendDocumentQuestion()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="env-config.js"></script>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+    <script src="extended-data.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>

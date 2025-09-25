@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KMRL Document Management System - Government of Kerala</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <header class="gov-header">
+        <div class="header-top">
+            <div class="container">
+                <div class="gov-logo-section">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNGRkY3MDAiLz4KPHN2ZyB4PSI1IiB5PSI1IiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHZpZXdCb3g9IjAgMCAzMCAzMCIgZmlsbD0ibm9uZSI+CjxwYXRoIGQ9Ik0xNSAyTDI2IDEwVjI4SDRWMTBMMTUgMloiIHN0cm9rZT0iIzAwMzMzMyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIi8+CjxwYXRoIGQ9Ik0xMCAxNUgxNSIgc3Ryb2tlPSIjMDAzMzMzIiBzdHJva2Utd2lkdGg9IjIiLz4KPHN2ZyB4PSIxNSIgeT0iMTIiIHdpZHRoPSI1IiBoZWlnaHQ9IjEwIiB2aWV3Qm94PSIwIDAgNSAxMCIgZmlsbD0ibm9uZSI+CjxyZWN0IHdpZHRoPSI1IiBoZWlnaHQ9IjEwIiBmaWxsPSIjMDAzMzMzIi8+Cjwvc3ZnPgo8L3N2Zz4KPC9zdmc+" alt="Government of Kerala" class="gov-emblem">
+                    <div class="gov-text">
+                        <div class="gov-main" data-en="Government of Kerala" data-ml="കേരള സർക്കാർ">Government of Kerala</div>
+                        <div class="gov-sub" data-en="Kochi Metro Rail Limited" data-ml="കൊച്ചി മെട്രോ റെയിൽ ലിമിറ്റഡ്">Kochi Metro Rail Limited</div>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="lang-toggle">
+                        <button id="langToggle" onclick="toggleLanguage()">
+                            <span id="langText">മലയാളം</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="header-bottom">
+            <div class="container">
+                <h1 class="system-title" data-en="Automated Document Management System" data-ml="ഓട്ടോമേറ്റഡ് ഡോക്യുമെന്റ് മാനേജ്മെന്റ് സിസ്റ്റം">
+                    Automated Document Management System
+                </h1>
+                <p class="system-subtitle" data-en="Smart Automation for Efficient Document Processing" data-ml="കാര്യക്ഷമമായ ഡോക്യുമെന്റ് പ്രോസസ്സിംഗിനുള്ള സ്മാർട്ട് ഓട്ടോമേഷൻ">
+                    Smart Automation for Efficient Document Processing
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <main class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <i class="fas fa-shield-alt"></i>
+                <h2 data-en="Department Login" data-ml="വകുപ്പ് ലോഗിൻ">Department Login</h2>
+                <p data-en="Select your department and login to access the system" data-ml="സിസ്റ്റം ആക്സസ് ചെയ്യാൻ നിങ്ങളുടെ വകുപ്പ് തിരഞ്ഞെടുത്ത് ലോഗിൻ ചെയ്യുക">
+                    Select your department and login to access the system
+                </p>
+            </div>
+
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="department" data-en="Department" data-ml="വകുപ്പ്">Department</label>
+                    <select id="department" name="department" required>
+                        <option value="" data-en="Select Department" data-ml="വകുപ്പ് തിരഞ്ഞെടുക്കുക">Select Department</option>
+                        <option value="operations" data-en="Train Operations" data-ml="ട്രെയിൻ ഓപ്പറേഷൻസ്">Train Operations</option>
+                        <option value="engineering" data-en="Engineering & Maintenance" data-ml="എഞ്ചിനീയറിംഗ് & മെയിന്റനൻസ്">Engineering & Maintenance</option>
+                        <option value="procurement" data-en="Procurement" data-ml="സംഭരണം">Procurement</option>
+                        <option value="hr" data-en="Human Resources" data-ml="ഹ്യൂമൻ റിസോഴ്സ്">Human Resources</option>
+                        <option value="finance" data-en="Finance & Accounts" data-ml="സാമ്പത്തികം & അക്കൗണ്ടുകൾ">Finance & Accounts</option>
+                        <option value="safety" data-en="Safety & Security" data-ml="സുരക്ഷ & സെക്യൂരിറ്റി">Safety & Security</option>
+                        <option value="legal" data-en="Legal & Compliance" data-ml="നിയമപരം & കംപ്ലയൻസ്">Legal & Compliance</option>
+                        <option value="admin" data-en="Administration" data-ml="അഡ്മിനിസ്ട്രേഷൻ">Administration</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="username" data-en="Username" data-ml="ഉപയോക്തൃനാമം">Username</label>
+                    <input type="text" id="username" name="username" required 
+                           placeholder="Enter your username">
+                </div>
+
+                <div class="form-group">
+                    <label for="password" data-en="Password" data-ml="പാസ്‌വേഡ്">Password</label>
+                    <input type="password" id="password" name="password" required 
+                           placeholder="Enter your password">
+                </div>
+
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span data-en="Login" data-ml="ലോഗിൻ">Login</span>
+                </button>
+            </form>
+
+            <div class="login-footer">
+                <div class="security-notice">
+                    <i class="fas fa-lock"></i>
+                    <span data-en="Secure Government Portal" data-ml="സുരക്ഷിത സർക്കാർ പോർട്ടൽ">Secure Government Portal</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="gov-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <p data-en="© 2024 Government of Kerala. All rights reserved." data-ml="© 2024 കേരള സർക്കാർ. എല്ലാ അവകാശങ്ങളും സംരക്ഷിതം.">
+                        © 2024 Government of Kerala. All rights reserved.
+                    </p>
+                </div>
+                <div class="footer-right">
+                    <span data-en="Powered by Smart Automation Initiative" data-ml="സ്മാർട്ട് ഓട്ടോമേഷൻ ഇനിഷ്യേറ്റീവ് പവർഡ്">
+                        Powered by Smart Automation Initiative
+                    </span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="env-config.js"></script>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+    <script src="extended-data.js"></script>
+</body>
+</html>

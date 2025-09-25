@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KMRL Test Page</title>
+</head>
+<body>
+    <h1>KMRL JavaScript Test</h1>
+    <div id="test-results"></div>
+    
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+    <script src="extended-data.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const results = document.getElementById('test-results');
+            let testResults = [];
+            
+            // Test if config.js loaded
+            if (typeof KMRL_CONFIG !== 'undefined') {
+                testResults.push('✅ config.js loaded successfully');
+            } else {
+                testResults.push('❌ config.js failed to load');
+            }
+            
+            // Test if app.js loaded
+            if (typeof window.kmrlApp !== 'undefined') {
+                testResults.push('✅ app.js loaded successfully');
+                testResults.push(`✅ window.kmrlApp has departments: ${Object.keys(window.kmrlApp.departments).length} departments`);
+            } else {
+                testResults.push('❌ app.js failed to load or window.kmrlApp not defined');
+            }
+            
+            // Test if extended-data.js loaded
+            if (typeof additionalMockDocuments !== 'undefined') {
+                testResults.push('✅ extended-data.js loaded successfully');
+            } else {
+                testResults.push('❌ extended-data.js failed to load');
+            }
+            
+            // Test current variables
+            if (typeof currentUser !== 'undefined') {
+                testResults.push('✅ currentUser variable available');
+            } else {
+                testResults.push('❌ currentUser variable not available');
+            }
+            
+            if (typeof currentLanguage !== 'undefined') {
+                testResults.push('✅ currentLanguage variable available');
+            } else {
+                testResults.push('❌ currentLanguage variable not available');
+            }
+            
+            results.innerHTML = testResults.join('<br>');
+            
+            // Test dashboard initialization
+            console.log('Testing dashboard compatibility...');
+            console.log('window.kmrlApp:', window.kmrlApp);
+            console.log('currentUser:', currentUser);
+            console.log('currentLanguage:', currentLanguage);
+        });
+    </script>
+</body>
+</html>
