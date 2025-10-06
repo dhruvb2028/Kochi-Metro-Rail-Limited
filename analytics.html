@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Smart Analytics Full Screen Dashboard</title>
+  <link rel="stylesheet" href="analytics.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="dashboard-fullscreen">
+    <div class="filters">
+      <label for="department">Department:</label>
+      <select id="department">
+        <option>Select Department</option>
+        <option>Train Operations</option>
+        <option>Engineering & Maintenance</option>
+        <option>Procurement</option>
+        <option>Human Resources</option>
+        <option>Finance & Accounts</option>
+        <option>Safety & Security</option>
+        <option>Legal & Compliance</option>
+        <option>Administration</option>
+      </select>
+    </div>
+    <div class="widgets">
+      <div class="widget"><h3>Total Documents</h3><div id="total-docs"></div></div>
+      <div class="widget"><h3>Processed Today</h3><div id="docs-today"></div></div>
+      <div class="widget"><h3>Pending Review</h3><div id="pending-review"></div></div>
+      <div class="widget"><h3>AI Summaries</h3><div id="ai-summaries"></div></div>
+    </div>
+    <div class="leaderboard-section">
+      <h2>Top Contributors</h2>
+      <table id="leaderboard">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Name</th>
+            <th>Docs Processed</th>
+          </tr>
+        </thead>
+        <tbody><!-- Populated by JS --></tbody>
+      </table>
+    </div>
+    <div class="chart-section">
+      <h2>Weekly Trend</h2>
+      <canvas id="deptChart"></canvas>
+    </div>
+  </div>
+  <script src="analytics.js"></script>
+</body>
+</html>
