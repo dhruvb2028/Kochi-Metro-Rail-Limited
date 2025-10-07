@@ -16,12 +16,12 @@ class EnvironmentConfig {
                 console.log('Environment configuration loaded from /api/config');
             } else {
                 // Fallback to local config
-                this.config = this.getLocalConfig();
+                this.config = await this.getLocalConfig();
                 console.log('Environment configuration loaded from fallback');
             }
         } catch (error) {
             console.warn('Failed to load environment config, using defaults:', error);
-            this.config = this.getLocalConfig();
+            this.config = await this.getLocalConfig();
         }
     }
 
@@ -64,10 +64,23 @@ class EnvironmentConfig {
         return config;
     }
 
-    getLocalConfig() {
-        // Fallback configuration - API key should be loaded from .env file
+    async getLocalConfig() {
+        // Load configuration from .env file
+        try {
+            const envResponse = await fetch('/.env').catch(() => null);
+            if (envResponse && envResponse.ok) {
+                const envText = await envResponse.text();
+                const parsedConfig = this.parseEnvFile(envText);
+                console.log('Environment configuration loaded from .env file');
+                return parsedConfig;
+            }
+        } catch (error) {
+            console.warn('Could not load .env file:', error);
+        }
+        
+        // Fallback configuration - NO hardcoded API key
         return {
-            GEMINI_API_KEY: process?.env?.GEMINI_API_KEY || null, // No hardcoded key
+            GOOGLE_GEMINI_API_KEY: null, // Must be loaded from .env file
             APP_NAME: 'KMRL Document Management System',
             APP_VERSION: '1.0.0',
             ENVIRONMENT: 'development',
@@ -81,10 +94,11 @@ class EnvironmentConfig {
     }
 
     getGeminiApiKey() {
-        const apiKey = this.get('GEMINI_API_KEY');
+        const apiKey = this.get('GOOGLE_GEMINI_API_KEY');
         if (!apiKey) {
-            console.error('GEMINI_API_KEY not found in environment configuration');
-            throw new Error('GEMINI_API_KEY is required but not configured');
+            console.error('GOOGLE_GEMINI_API_KEY not found in environment configuration');
+            console.warn('Make sure your .env file contains GOOGLE_GEMINI_API_KEY');
+            return null;
         }
         return apiKey;
     }

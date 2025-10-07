@@ -32,7 +32,7 @@ const server = http.createServer((req, res) => {
             
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({
-                GEMINI_API_KEY: config.GEMINI_API_KEY,
+                GOOGLE_GEMINI_API_KEY: config.GOOGLE_GEMINI_API_KEY,
                 APP_NAME: 'KMRL Document Management System',
                 APP_VERSION: '1.0.0',
                 ENVIRONMENT: 'development'
@@ -40,6 +40,20 @@ const server = http.createServer((req, res) => {
         } catch (error) {
             res.writeHead(500, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: 'Failed to load environment configuration' }));
+        }
+        return;
+    }
+
+    // Handle direct .env file requests
+    if (pathname === '/.env') {
+        try {
+            const envPath = path.join(__dirname, '.env');
+            const envContent = fs.readFileSync(envPath, 'utf8');
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            res.end(envContent);
+        } catch (error) {
+            res.writeHead(404);
+            res.end('Environment file not found');
         }
         return;
     }

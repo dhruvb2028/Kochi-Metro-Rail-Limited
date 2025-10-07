@@ -3,7 +3,7 @@
 const KMRL_CONFIG = {
     // API Configuration
     api: {
-        geminiApiKey: window.envConfig?.getGeminiApiKey() || 'your_api_key_here',
+        geminiApiKey: (window.envConfig?.getGeminiApiKey && window.envConfig?.getGeminiApiKey()) || null,
         geminiModel: 'gemini-2.5-flash',
         maxTokens: 1000,
         temperature: 0.7

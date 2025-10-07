@@ -2,50 +2,258 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Smart Analytics Full Screen Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Employee Analytics - KMRL Document Management System</title>
+  <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="analytics.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 </head>
 <body>
-  <div class="dashboard-fullscreen">
-    <div class="filters">
-      <label for="department">Department:</label>
-      <select id="department">
-        <option>Select Department</option>
-        <option>Train Operations</option>
-        <option>Engineering & Maintenance</option>
-        <option>Procurement</option>
-        <option>Human Resources</option>
-        <option>Finance & Accounts</option>
-        <option>Safety & Security</option>
-        <option>Legal & Compliance</option>
-        <option>Administration</option>
-      </select>
+  <div class="dashboard" id="dashboard">
+    <nav class="nav-header">
+      <div class="container nav-container">
+        <div class="nav-left">
+          <div class="gov-logo-section">
+            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHZpZXdCb3g9IjAgMCAzMCAzMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTUiIGN5PSIxNSIgcj0iMTUiIGZpbGw9IiNGRkY3MDAiLz4KPHN2ZyB4PSI0IiB5PSI0IiB3aWR0aD0iMjIiIGhlaWdodD0iMjIiIHZpZXdCb3g9IjAgMCAyMiAyMiIgZmlsbD0ibm9uZSI+CjxwYXRoIGQ9Ik0xMSAyTDE5IDhWMjFIM1Y4TDExIDJaIiBzdHJva2U9IiMwMDMzMzMiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIi8+CjxwYXRoIGQ9Ik03IDEySDExIiBzdHJva2U9IiMwMDMzMzMiIHN0cm9rZS13aWR0aD0iMS41Ii8+Cjwvc3ZnPgo8L3N2Zz4=" alt="KMRL" class="nav-logo">
+            <div class="dept-info">
+              <h3 id="navbar-title" data-en="Smart Employee Analytics" data-ml="സ്മാർട്ട് എംപ്ലോയി അനലിറ്റിക്സ്">Smart Employee Analytics</h3>
+              <span class="dept-name" id="deptName">KMRL Dashboard</span>
+            </div>
+          </div>
+        </div>
+        <div class="nav-right">
+          <div class="lang-toggle">
+            <button id="langToggle">
+              <span id="langText">മലയാളം</span>
+            </button>
+          </div>
+          <div class="user-info">
+            <i class="fas fa-user"></i>
+            <span id="userName">Administrator</span>
+          </div>
+          <button class="logout-btn" onclick="window.location.href='dashboard.html'">
+            <i class="fas fa-arrow-left"></i>
+            <span data-en="Back to Dashboard" data-ml="ഡാഷ്ബോർഡിലേക്ക് മടങ്ങുക">Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <div class="dashboard-content">
+      <aside class="sidebar">
+        <ul class="sidebar-menu">
+          <li>
+            <a href="dashboard.html">
+              <i class="fas fa-tachometer-alt"></i>
+              <span data-en="Dashboard" data-ml="ഡാഷ്ബോർഡ്">Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="dashboard.html">
+              <i class="fas fa-file-alt"></i>
+              <span data-en="All Documents" data-ml="എല്ലാ ഡോക്യുമെന്റുകളും">All Documents</span>
+            </a>
+          </li>
+          <li>
+            <a href="dashboard.html">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <span data-en="Upload Document" data-ml="ഡോക്യുമെന്റ് അപ്‌ലോഡ് ചെയ്യുക">Upload Document</span>
+            </a>
+          </li>
+          <li>
+            <a href="dashboard.html">
+              <i class="fas fa-comments"></i>
+              <span data-en="Department Chat" data-ml="വകുപ്പ് ചാറ്റ്">Department Chat</span>
+            </a>
+          </li>
+          <li>
+            <a href="dashboard.html">
+              <i class="fas fa-exchange-alt"></i>
+              <span data-en="Cross-Department Chat" data-ml="ക്രോസ്-ഡിപ്പാർട്ട്മെന്റ് ചാറ്റ്">Cross-Department Chat</span>
+            </a>
+          </li>
+          <li>
+            <a href="live.html">
+              <i class="fas fa-video"></i>
+              <span data-en="Department e-MEET" data-ml="വകുപ്പ് ഇ-മീറ്റ്">Department e-MEET</span>
+            </a>
+          </li>
+          <li>
+            <a href="analytics.html" class="active">
+              <i class="fas fa-chart-line"></i>
+              <span data-en="Smart Employee Analytics" data-ml="സ്മാർട്ട് എംപ്ലോയി അനലിറ്റിക്സ്">Smart Employee Analytics</span>
+            </a>
+          </li>
+          <li>
+            <a href="dashboard.html">
+              <i class="fas fa-cog"></i>
+              <span data-en="Settings" data-ml="സെറ്റിംഗുകൾ">Settings</span>
+            </a>
+          </li>
+        </ul>
+      </aside>
+
+      <main class="main-content">
+        <div class="analytics-dashboard">
+          <div class="analytics-header">
+            <h1>SMART EMPLOYEE ANALYTICS</h1>
+            <div class="filters">
+              <label for="viewType">View:</label>
+              <select id="viewType">
+                <option value="department">Department Comparison</option>
+                <option value="leaderboard">Employee Leaderboard</option>
+                <option value="insights">Organizational Insights</option>
+                <option value="impact">Impact Dashboard</option>
+              </select>
+              <label for="department">Department:</label>
+              <select id="department">
+                <option>All Departments</option>
+                <option>Train Operations</option>
+                <option>Engineering & Maintenance</option>
+                <option>Procurement</option>
+                <option>Human Resources</option>
+                <option>Finance & Accounts</option>
+                <option>Safety & Security</option>
+                <option>Legal & Compliance</option>
+                <option>Administration</option>
+              </select>
+            </div>
+          </div>
+
+    <!-- Department Comparison Section -->
+    <div id="department-view" class="view-section">
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <h3>Document Response Time</h3>
+          <div class="metric-value" id="avg-response-time">2.3 hrs</div>
+          <div class="metric-trend positive">↗ 15% improved</div>
+        </div>
+        <div class="metric-card">
+          <h3>Collaboration Index</h3>
+          <div class="metric-value" id="collaboration-score">8.7/10</div>
+          <div class="metric-trend positive">↗ 0.3 points</div>
+        </div>
+        <div class="metric-card">
+          <h3>Knowledge Contribution</h3>
+          <div class="metric-value" id="knowledge-score">127</div>
+          <div class="metric-trend positive">↗ 23 insights</div>
+        </div>
+        <div class="metric-card">
+          <h3>AI Utilization Rate</h3>
+          <div class="metric-value" id="ai-utilization">78%</div>
+          <div class="metric-trend positive">↗ 12% increase</div>
+        </div>
+      </div>
+      <div class="charts-container">
+        <div class="chart-card">
+          <h3>Department Comparison (Radar)</h3>
+          <canvas id="radarChart"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3>Performance Metrics (Bar)</h3>
+          <canvas id="comparisonChart"></canvas>
+        </div>
+      </div>
     </div>
-    <div class="widgets">
-      <div class="widget"><h3>Total Documents</h3><div id="total-docs"></div></div>
-      <div class="widget"><h3>Processed Today</h3><div id="docs-today"></div></div>
-      <div class="widget"><h3>Pending Review</h3><div id="pending-review"></div></div>
-      <div class="widget"><h3>AI Summaries</h3><div id="ai-summaries"></div></div>
+
+    <!-- Employee Leaderboard Section -->
+    <div id="leaderboard-view" class="view-section" style="display:none;">
+      <div class="leaderboard-categories">
+        <div class="category-tabs">
+          <button class="tab-btn active" data-category="contributors">Top Contributors</button>
+          <button class="tab-btn" data-category="responders">Quick Responders</button>
+          <button class="tab-btn" data-category="accuracy">Accuracy Champions</button>
+          <button class="tab-btn" data-category="collaboration">Collaboration Stars</button>
+          <button class="tab-btn" data-category="compliance">Compliance Guardians</button>
+        </div>
+        <div id="leaderboard-content">
+          <!-- Leaderboard cards will be populated here -->
+        </div>
+      </div>
     </div>
-    <div class="leaderboard-section">
-      <h2>Top Contributors</h2>
-      <table id="leaderboard">
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Name</th>
-            <th>Docs Processed</th>
-          </tr>
-        </thead>
-        <tbody><!-- Populated by JS --></tbody>
-      </table>
+
+    <!-- Organizational Insights Section -->
+    <div id="insights-view" class="view-section" style="display:none;">
+      <div class="insights-grid">
+        <div class="insight-card bottleneck">
+          <h3>🚨 Bottleneck Detection</h3>
+          <div class="bottleneck-list" id="bottlenecks"></div>
+        </div>
+        <div class="insight-card trends">
+          <h3>📈 Emerging Trends</h3>
+          <div class="trends-list" id="trends"></div>
+        </div>
+        <div class="insight-card knowledge">
+          <h3>🧠 Knowledge Retention Map</h3>
+          <canvas id="knowledgeChart"></canvas>
+        </div>
+        <div class="insight-card engagement">
+          <h3>💪 Engagement Pulse</h3>
+          <div class="engagement-meter" id="engagement-meter"></div>
+          <canvas id="engagementChart"></canvas>
+        </div>
+      </div>
     </div>
-    <div class="chart-section">
-      <h2>Weekly Trend</h2>
-      <canvas id="deptChart"></canvas>
-    </div>
+
+    <!-- Impact Dashboard Section -->
+    <div id="impact-view" class="view-section" style="display:none;">
+      <div class="impact-metrics">
+        <div class="impact-card time-saved">
+          <div class="impact-icon">⏰</div>
+          <div class="impact-content">
+            <h3>Time Saved</h3>
+            <div class="impact-value" id="time-saved">847 hrs</div>
+            <div class="impact-period">This Month</div>
+          </div>
+        </div>
+        <div class="impact-card cost-reduction">
+          <div class="impact-icon">💰</div>
+          <div class="impact-content">
+            <h3>Cost Reduction</h3>
+            <div class="impact-value" id="cost-saved">₹2.3L</div>
+            <div class="impact-period">Due to efficiency</div>
+          </div>
+        </div>
+        <div class="impact-card paper-reduction">
+          <div class="impact-icon">🌱</div>
+          <div class="impact-content">
+            <h3>Paper Reduction</h3>
+            <div class="impact-value" id="paper-saved">1,247</div>
+            <div class="impact-period">Sheets saved</div>
+          </div>
+        </div>
+        <div class="impact-card compliance">
+          <div class="impact-icon">✅</div>
+          <div class="impact-content">
+            <h3>Compliance Rate</h3>
+            <div class="impact-value" id="compliance-percent">96.8%</div>
+            <div class="impact-period">Adherence</div>
+          </div>
+        </div>
+        <div class="impact-card engagement-growth">
+          <div class="impact-icon">📊</div>
+          <div class="impact-content">
+            <h3>Engagement Growth</h3>
+            <div class="impact-value" id="engagement-growth">+23%</div>
+            <div class="impact-period">Since last quarter</div>
+          </div>
+        </div>
+      </div>
+      <div class="impact-trends">
+        <div class="trend-chart-card">
+          <h3>Real-time Impact Visualization</h3>
+          <canvas id="impactTrendChart"></canvas>
+        </div>
+        </div>
+      </div>
+    </main>
   </div>
+</div>
+<script src="analytics.js"></script>
+</body>
+</html>
   <script src="analytics.js"></script>
 </body>
 </html>

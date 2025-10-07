@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     attemptInitialization();
 });
 
-function attemptInitialization(retryCount = 0) {
+async function attemptInitialization(retryCount = 0) {
     if (typeof window.kmrlApp === 'undefined') {
         if (retryCount < 10) {
             console.log(`Waiting for app.js to load... (attempt ${retryCount + 1})`);
@@ -22,7 +22,7 @@ function attemptInitialization(retryCount = 0) {
         }
     } else {
         console.log('App dependencies loaded successfully');
-        initializeDashboard();
+        await initializeDashboard();
     }
 }
 
@@ -46,7 +46,14 @@ function getLocalizedText(doc, field) {
     return doc[field] || '';
 }
 
-function initializeDashboard() {
+async function initializeDashboard() {
+    // Initialize environment configuration first
+    if (!window.envConfig) {
+        console.log('Initializing environment configuration...');
+        window.envConfig = new EnvConfig();
+        await window.envConfig.initialize();
+    }
+    
     // Get user data from session storage
     const userData = sessionStorage.getItem('currentUser');
     if (!userData) {
@@ -65,7 +72,7 @@ function initializeDashboard() {
     
     currentLanguage = localStorage.getItem('currentLanguage') || 'en';
     
-    // Initialize Gemini AI service
+    // Initialize Gemini AI service after environment config is ready
     geminiService = new GeminiService();
     
     setupDashboard();

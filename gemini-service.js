@@ -9,20 +9,21 @@ class GeminiService {
     async initializeClient() {
         // Wait for environment config to load
         let retryCount = 0;
-        while (!window.envConfig && retryCount < 50) {
+        while ((!window.envConfig || !window.envConfig.config) && retryCount < 50) {
             await new Promise(resolve => setTimeout(resolve, 100));
             retryCount++;
         }
 
-        if (!window.envConfig || !window.envConfig.GEMINI_API_KEY) {
-            console.error('GEMINI_API_KEY not found in environment configuration');
+        if (!window.envConfig || !window.envConfig.config || !window.envConfig.config.GOOGLE_GEMINI_API_KEY) {
+            console.error('GOOGLE_GEMINI_API_KEY not found in environment configuration');
+            console.log('Available config:', window.envConfig?.config);
             return false;
         }
 
         try {
             // Equivalent to: from google import genai; client = genai.Client()
             // In browser environment, we simulate this with the REST API
-            this.apiKey = window.envConfig.GEMINI_API_KEY;
+            this.apiKey = window.envConfig.config.GOOGLE_GEMINI_API_KEY;
             this.baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
             
             // Create client object matching genai.Client() interface

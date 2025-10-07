@@ -407,14 +407,14 @@ body {
 /* Cards */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
 }
 
 .stat-card {
     background: white;
-    padding: 25px;
+    padding: 18px;
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
     border-left: 4px solid var(--gov-primary);
@@ -427,21 +427,21 @@ body {
 }
 
 .stat-card .stat-icon {
-    font-size: 2.5rem;
+    font-size: 2rem;
     color: var(--gov-primary);
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 .stat-card .stat-number {
-    font-size: 2rem;
+    font-size: 1.6rem;
     font-weight: 700;
     color: var(--gov-primary);
-    margin-bottom: 5px;
+    margin-bottom: 4px;
 }
 
 .stat-card .stat-label {
     color: #666;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -1039,7 +1039,8 @@ body {
     }
     
     .stats-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
     }
     
     .documents-grid {
@@ -1079,6 +1080,11 @@ body {
     
     .login-card {
         padding: 20px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
     }
 }
 
