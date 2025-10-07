@@ -24,9 +24,13 @@ const server = http.createServer((req, res) => {
             
             const config = {};
             envContent.split('\n').forEach(line => {
-                const [key, ...valueParts] = line.split('=');
-                if (key && valueParts.length > 0) {
-                    config[key.trim()] = valueParts.join('=').trim();
+                const trimmedLine = line.trim();
+                // Skip empty lines and comments
+                if (trimmedLine && !trimmedLine.startsWith('#')) {
+                    const [key, ...valueParts] = trimmedLine.split('=');
+                    if (key && valueParts.length > 0) {
+                        config[key.trim()] = valueParts.join('=').trim();
+                    }
                 }
             });
             

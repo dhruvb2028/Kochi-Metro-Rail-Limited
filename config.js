@@ -3,7 +3,10 @@
 const KMRL_CONFIG = {
     // API Configuration
     api: {
-        geminiApiKey: (window.envConfig?.getGeminiApiKey && window.envConfig?.getGeminiApiKey()) || null,
+        get geminiApiKey() {
+            // Lazy loading: get API key when actually needed
+            return (window.envConfig?.getGeminiApiKey && window.envConfig.getGeminiApiKey()) || null;
+        },
         geminiModel: 'gemini-2.5-flash',
         maxTokens: 1000,
         temperature: 0.7
